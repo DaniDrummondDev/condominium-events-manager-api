@@ -1,0 +1,2287 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-02-10T00:00:00.000Z",
+  "__export_source": "insomnia.importers:v0.1.0",
+  "resources": [
+    {
+      "_id": "wrk_condominium",
+      "_type": "workspace",
+      "name": "Condominium Events Manager API",
+      "description": "API completa do Condominium Events Manager - SaaS B2B Multi-Tenant",
+      "scope": "collection",
+      "parentId": null
+    },
+    {
+      "_id": "env_base",
+      "_type": "environment",
+      "name": "Base Environment",
+      "parentId": "wrk_condominium",
+      "data": {
+        "base_url": "http://localhost:8000/api/v1",
+        "platform_access_token": "",
+        "tenant_access_token": "",
+        "refresh_token": "",
+        "mfa_token": "",
+        "tenant_id": "",
+        "tenant_slug": "condominio-solar",
+        "user_id": "",
+        "plan_id": "",
+        "subscription_id": "",
+        "invoice_id": "",
+        "feature_flag_id": "",
+        "override_id": "",
+        "block_id": "",
+        "unit_id": "",
+        "space_id": "",
+        "reservation_id": "",
+        "guest_id": "",
+        "service_provider_id": "",
+        "rule_id": "",
+        "document_id": "",
+        "section_id": "",
+        "violation_id": "",
+        "penalty_id": "",
+        "penalty_policy_id": "",
+        "announcement_id": "",
+        "support_request_id": "",
+        "ai_action_id": "",
+        "platform_user_id": "",
+        "tenant_user_id": "",
+        "resident_id": "",
+        "availability_id": "",
+        "space_block_id": "",
+        "space_rule_id": ""
+      }
+    },
+    {
+      "_id": "env_local",
+      "_type": "environment",
+      "name": "Local Docker",
+      "parentId": "env_base",
+      "data": {
+        "base_url": "http://localhost:8000/api/v1"
+      }
+    },
+
+    {
+      "_id": "fld_auth",
+      "_type": "request_group",
+      "name": "Auth",
+      "parentId": "wrk_condominium"
+    },
+    {
+      "_id": "fld_auth_platform",
+      "_type": "request_group",
+      "name": "Platform Auth",
+      "parentId": "fld_auth"
+    },
+    {
+      "_id": "fld_auth_tenant",
+      "_type": "request_group",
+      "name": "Tenant Auth",
+      "parentId": "fld_auth"
+    },
+
+    {
+      "_id": "fld_platform",
+      "_type": "request_group",
+      "name": "Platform API",
+      "parentId": "wrk_condominium"
+    },
+    {
+      "_id": "fld_tenants",
+      "_type": "request_group",
+      "name": "Tenants",
+      "parentId": "fld_platform"
+    },
+    {
+      "_id": "fld_plans",
+      "_type": "request_group",
+      "name": "Plans",
+      "parentId": "fld_platform"
+    },
+    {
+      "_id": "fld_subscriptions",
+      "_type": "request_group",
+      "name": "Subscriptions",
+      "parentId": "fld_platform"
+    },
+    {
+      "_id": "fld_invoices",
+      "_type": "request_group",
+      "name": "Invoices",
+      "parentId": "fld_platform"
+    },
+    {
+      "_id": "fld_payments",
+      "_type": "request_group",
+      "name": "Payments",
+      "parentId": "fld_platform"
+    },
+    {
+      "_id": "fld_feature_flags",
+      "_type": "request_group",
+      "name": "Feature Flags",
+      "parentId": "fld_platform"
+    },
+    {
+      "_id": "fld_platform_users",
+      "_type": "request_group",
+      "name": "Platform Users",
+      "parentId": "fld_platform"
+    },
+    {
+      "_id": "fld_audit",
+      "_type": "request_group",
+      "name": "Audit & Health",
+      "parentId": "fld_platform"
+    },
+
+    {
+      "_id": "fld_tenant",
+      "_type": "request_group",
+      "name": "Tenant API",
+      "parentId": "wrk_condominium"
+    },
+    {
+      "_id": "fld_blocks",
+      "_type": "request_group",
+      "name": "Blocks",
+      "parentId": "fld_tenant"
+    },
+    {
+      "_id": "fld_units",
+      "_type": "request_group",
+      "name": "Units",
+      "parentId": "fld_tenant"
+    },
+    {
+      "_id": "fld_tenant_users",
+      "_type": "request_group",
+      "name": "Tenant Users",
+      "parentId": "fld_tenant"
+    },
+    {
+      "_id": "fld_spaces",
+      "_type": "request_group",
+      "name": "Spaces",
+      "parentId": "fld_tenant"
+    },
+    {
+      "_id": "fld_reservations",
+      "_type": "request_group",
+      "name": "Reservations",
+      "parentId": "fld_tenant"
+    },
+    {
+      "_id": "fld_governance",
+      "_type": "request_group",
+      "name": "Governance",
+      "parentId": "fld_tenant"
+    },
+    {
+      "_id": "fld_communication",
+      "_type": "request_group",
+      "name": "Communication",
+      "parentId": "fld_tenant"
+    },
+    {
+      "_id": "fld_gate",
+      "_type": "request_group",
+      "name": "Gate Control (Portaria)",
+      "parentId": "fld_tenant"
+    },
+    {
+      "_id": "fld_settings",
+      "_type": "request_group",
+      "name": "Settings & Features",
+      "parentId": "fld_tenant"
+    },
+    {
+      "_id": "fld_dashboard",
+      "_type": "request_group",
+      "name": "Dashboard",
+      "parentId": "fld_tenant"
+    },
+    {
+      "_id": "fld_ai",
+      "_type": "request_group",
+      "name": "AI",
+      "parentId": "fld_tenant"
+    },
+
+
+    {
+      "_id": "req_platform_login",
+      "_type": "request",
+      "name": "Platform Login",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/platform/login",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"admin@plataforma.com.br\",\n  \"password\": \"SenhaSegura@123\"\n}"
+      },
+      "parentId": "fld_auth_platform"
+    },
+    {
+      "_id": "req_platform_mfa_verify",
+      "_type": "request",
+      "name": "Platform MFA Verify",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/platform/mfa/verify",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"mfa_token\": \"{{ _.mfa_token }}\",\n  \"code\": \"123456\"\n}"
+      },
+      "parentId": "fld_auth_platform"
+    },
+    {
+      "_id": "req_token_refresh",
+      "_type": "request",
+      "name": "Refresh Token",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/token/refresh",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"refresh_token\": \"{{ _.refresh_token }}\"\n}"
+      },
+      "parentId": "fld_auth_platform"
+    },
+    {
+      "_id": "req_platform_logout",
+      "_type": "request",
+      "name": "Platform Logout",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/logout",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_auth_platform"
+    },
+
+    {
+      "_id": "req_tenant_login",
+      "_type": "request",
+      "name": "Tenant Login",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/auth/login",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"morador@email.com\",\n  \"password\": \"SenhaSegura123\",\n  \"tenant_slug\": \"{{ _.tenant_slug }}\"\n}"
+      },
+      "parentId": "fld_auth_tenant"
+    },
+    {
+      "_id": "req_tenant_mfa_verify",
+      "_type": "request",
+      "name": "Tenant MFA Verify",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/auth/mfa/verify",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.mfa_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"code\": \"123456\"\n}"
+      },
+      "parentId": "fld_auth_tenant"
+    },
+    {
+      "_id": "req_tenant_mfa_setup",
+      "_type": "request",
+      "name": "Tenant MFA Setup",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/auth/mfa/setup",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_auth_tenant"
+    },
+    {
+      "_id": "req_tenant_mfa_setup_confirm",
+      "_type": "request",
+      "name": "Tenant MFA Setup Confirm",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/auth/mfa/setup/confirm",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"code\": \"123456\"\n}"
+      },
+      "parentId": "fld_auth_tenant"
+    },
+    {
+      "_id": "req_tenant_refresh",
+      "_type": "request",
+      "name": "Tenant Refresh Token",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/auth/refresh",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"refresh_token\": \"{{ _.refresh_token }}\"\n}"
+      },
+      "parentId": "fld_auth_tenant"
+    },
+    {
+      "_id": "req_tenant_logout",
+      "_type": "request",
+      "name": "Tenant Logout",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/auth/logout",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_auth_tenant"
+    },
+    {
+      "_id": "req_tenant_register",
+      "_type": "request",
+      "name": "Register via Invitation",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/auth/register",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"invitation_token\": \"token-do-convite\",\n  \"name\": \"Maria Santos\",\n  \"email\": \"maria@email.com\",\n  \"password\": \"SenhaSegura123\",\n  \"password_confirmation\": \"SenhaSegura123\",\n  \"phone\": \"11999998888\"\n}"
+      },
+      "parentId": "fld_auth_tenant"
+    },
+    {
+      "_id": "req_tenant_forgot_password",
+      "_type": "request",
+      "name": "Forgot Password",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/auth/forgot-password",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"morador@email.com\",\n  \"tenant_slug\": \"{{ _.tenant_slug }}\"\n}"
+      },
+      "parentId": "fld_auth_tenant"
+    },
+    {
+      "_id": "req_tenant_reset_password",
+      "_type": "request",
+      "name": "Reset Password",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/auth/reset-password",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"token\": \"reset-token\",\n  \"password\": \"NovaSenha123\",\n  \"password_confirmation\": \"NovaSenha123\"\n}"
+      },
+      "parentId": "fld_auth_tenant"
+    },
+    {
+      "_id": "req_tenant_me",
+      "_type": "request",
+      "name": "My Profile (me)",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/auth/me",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_auth_tenant"
+    },
+
+
+    {
+      "_id": "req_list_tenants",
+      "_type": "request",
+      "name": "List Tenants",
+      "method": "GET",
+      "url": "{{ _.base_url }}/platform/tenants",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "parameters": [
+        { "name": "status", "value": "active", "disabled": true },
+        { "name": "search", "value": "", "disabled": true },
+        { "name": "sort", "value": "created_at", "disabled": true },
+        { "name": "order", "value": "desc", "disabled": true },
+        { "name": "page", "value": "1", "disabled": true },
+        { "name": "per_page", "value": "15", "disabled": true }
+      ],
+      "body": {},
+      "parentId": "fld_tenants"
+    },
+    {
+      "_id": "req_create_tenant",
+      "_type": "request",
+      "name": "Create Tenant",
+      "method": "POST",
+      "url": "{{ _.base_url }}/platform/tenants",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Condominio Residencial Aurora\",\n  \"slug\": \"residencial-aurora\",\n  \"document\": \"12.345.678/0001-90\",\n  \"type\": \"vertical\",\n  \"plan_id\": \"{{ _.plan_id }}\",\n  \"admin_name\": \"Maria Silva\",\n  \"admin_email\": \"maria.silva@aurora.com.br\"\n}"
+      },
+      "parentId": "fld_tenants"
+    },
+    {
+      "_id": "req_get_tenant",
+      "_type": "request",
+      "name": "Get Tenant",
+      "method": "GET",
+      "url": "{{ _.base_url }}/platform/tenants/{{ _.tenant_id }}",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_tenants"
+    },
+    {
+      "_id": "req_update_tenant",
+      "_type": "request",
+      "name": "Update Tenant",
+      "method": "PUT",
+      "url": "{{ _.base_url }}/platform/tenants/{{ _.tenant_id }}",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Condominio Residencial Aurora Premium\",\n  \"settings\": {\n    \"timezone\": \"America/Sao_Paulo\",\n    \"locale\": \"pt_BR\",\n    \"features\": {\n      \"reservations_enabled\": true,\n      \"violations_enabled\": true,\n      \"financial_enabled\": true\n    }\n  }\n}"
+      },
+      "parentId": "fld_tenants"
+    },
+    {
+      "_id": "req_suspend_tenant",
+      "_type": "request",
+      "name": "Suspend Tenant",
+      "method": "POST",
+      "url": "{{ _.base_url }}/platform/tenants/{{ _.tenant_id }}/suspend",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"reason\": \"Inadimplencia - 3 faturas vencidas\"\n}"
+      },
+      "parentId": "fld_tenants"
+    },
+    {
+      "_id": "req_reactivate_tenant",
+      "_type": "request",
+      "name": "Reactivate Tenant",
+      "method": "POST",
+      "url": "{{ _.base_url }}/platform/tenants/{{ _.tenant_id }}/reactivate",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_tenants"
+    },
+    {
+      "_id": "req_cancel_tenant",
+      "_type": "request",
+      "name": "Cancel Tenant",
+      "method": "POST",
+      "url": "{{ _.base_url }}/platform/tenants/{{ _.tenant_id }}/cancel",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"reason\": \"Solicitacao do cliente - encerramento de contrato\",\n  \"retention_days\": 30\n}"
+      },
+      "parentId": "fld_tenants"
+    },
+    {
+      "_id": "req_tenant_metrics",
+      "_type": "request",
+      "name": "Tenant Metrics",
+      "method": "GET",
+      "url": "{{ _.base_url }}/platform/tenants/{{ _.tenant_id }}/metrics",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_tenants"
+    },
+
+
+    {
+      "_id": "req_list_plans",
+      "_type": "request",
+      "name": "List Plans",
+      "method": "GET",
+      "url": "{{ _.base_url }}/platform/plans",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_plans"
+    },
+    {
+      "_id": "req_create_plan",
+      "_type": "request",
+      "name": "Create Plan",
+      "method": "POST",
+      "url": "{{ _.base_url }}/platform/plans",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Enterprise\",\n  \"slug\": \"enterprise\",\n  \"description\": \"Plano para grandes condominios.\",\n  \"price\": 999.90,\n  \"billing_cycle\": \"monthly\",\n  \"trial_days\": 30,\n  \"features\": [\"reservations\", \"violations\", \"communications\", \"financial\", \"reports\", \"api_access\"],\n  \"limits\": {\n    \"max_units\": 1000,\n    \"max_users\": 2000,\n    \"max_spaces\": 50,\n    \"max_reservations_per_month\": 5000\n  }\n}"
+      },
+      "parentId": "fld_plans"
+    },
+    {
+      "_id": "req_get_plan",
+      "_type": "request",
+      "name": "Get Plan",
+      "method": "GET",
+      "url": "{{ _.base_url }}/platform/plans/{{ _.plan_id }}",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_plans"
+    },
+    {
+      "_id": "req_update_plan",
+      "_type": "request",
+      "name": "Update Plan",
+      "method": "PUT",
+      "url": "{{ _.base_url }}/platform/plans/{{ _.plan_id }}",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Profissional Plus\",\n  \"price\": 549.90,\n  \"limits\": {\n    \"max_units\": 250,\n    \"max_users\": 600,\n    \"max_spaces\": 15,\n    \"max_reservations_per_month\": 700\n  }\n}"
+      },
+      "parentId": "fld_plans"
+    },
+    {
+      "_id": "req_deactivate_plan",
+      "_type": "request",
+      "name": "Deactivate Plan",
+      "method": "POST",
+      "url": "{{ _.base_url }}/platform/plans/{{ _.plan_id }}/deactivate",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_plans"
+    },
+
+
+    {
+      "_id": "req_list_subscriptions",
+      "_type": "request",
+      "name": "List Subscriptions",
+      "method": "GET",
+      "url": "{{ _.base_url }}/platform/subscriptions",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "parameters": [
+        { "name": "tenant_id", "value": "", "disabled": true },
+        { "name": "status", "value": "active", "disabled": true },
+        { "name": "page", "value": "1", "disabled": true },
+        { "name": "per_page", "value": "15", "disabled": true }
+      ],
+      "body": {},
+      "parentId": "fld_subscriptions"
+    },
+    {
+      "_id": "req_get_subscription",
+      "_type": "request",
+      "name": "Get Subscription",
+      "method": "GET",
+      "url": "{{ _.base_url }}/platform/subscriptions/{{ _.subscription_id }}",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_subscriptions"
+    },
+    {
+      "_id": "req_change_plan",
+      "_type": "request",
+      "name": "Change Plan",
+      "method": "POST",
+      "url": "{{ _.base_url }}/platform/subscriptions/{{ _.subscription_id }}/change-plan",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"plan_id\": \"{{ _.plan_id }}\",\n  \"prorate\": true\n}"
+      },
+      "parentId": "fld_subscriptions"
+    },
+    {
+      "_id": "req_cancel_subscription",
+      "_type": "request",
+      "name": "Cancel Subscription",
+      "method": "POST",
+      "url": "{{ _.base_url }}/platform/subscriptions/{{ _.subscription_id }}/cancel",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"reason\": \"Solicitacao do cliente\",\n  \"cancel_at_period_end\": true\n}"
+      },
+      "parentId": "fld_subscriptions"
+    },
+
+
+    {
+      "_id": "req_list_invoices",
+      "_type": "request",
+      "name": "List Invoices",
+      "method": "GET",
+      "url": "{{ _.base_url }}/platform/invoices",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "parameters": [
+        { "name": "tenant_id", "value": "", "disabled": true },
+        { "name": "status", "value": "", "disabled": true },
+        { "name": "date_from", "value": "", "disabled": true },
+        { "name": "date_to", "value": "", "disabled": true }
+      ],
+      "body": {},
+      "parentId": "fld_invoices"
+    },
+    {
+      "_id": "req_get_invoice",
+      "_type": "request",
+      "name": "Get Invoice",
+      "method": "GET",
+      "url": "{{ _.base_url }}/platform/invoices/{{ _.invoice_id }}",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_invoices"
+    },
+    {
+      "_id": "req_refund_invoice",
+      "_type": "request",
+      "name": "Refund Invoice",
+      "method": "POST",
+      "url": "{{ _.base_url }}/platform/invoices/{{ _.invoice_id }}/refund",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"amount\": 250.00,\n  \"reason\": \"Reembolso parcial - servico indisponivel\"\n}"
+      },
+      "parentId": "fld_invoices"
+    },
+
+
+    {
+      "_id": "req_list_payments",
+      "_type": "request",
+      "name": "List Payments",
+      "method": "GET",
+      "url": "{{ _.base_url }}/platform/payments",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "parameters": [
+        { "name": "tenant_id", "value": "", "disabled": true },
+        { "name": "status", "value": "", "disabled": true },
+        { "name": "method", "value": "", "disabled": true }
+      ],
+      "body": {},
+      "parentId": "fld_payments"
+    },
+    {
+      "_id": "req_get_payment",
+      "_type": "request",
+      "name": "Get Payment",
+      "method": "GET",
+      "url": "{{ _.base_url }}/platform/payments/{{ _.payment_id }}",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_payments"
+    },
+
+
+    {
+      "_id": "req_list_ff",
+      "_type": "request",
+      "name": "List Feature Flags",
+      "method": "GET",
+      "url": "{{ _.base_url }}/platform/feature-flags",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_feature_flags"
+    },
+    {
+      "_id": "req_create_ff",
+      "_type": "request",
+      "name": "Create Feature Flag",
+      "method": "POST",
+      "url": "{{ _.base_url }}/platform/feature-flags",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"key\": \"bulk_messaging\",\n  \"name\": \"Envio de Mensagens em Massa\",\n  \"description\": \"Habilita envio de comunicados para multiplos moradores.\",\n  \"default_value\": false\n}"
+      },
+      "parentId": "fld_feature_flags"
+    },
+    {
+      "_id": "req_update_ff",
+      "_type": "request",
+      "name": "Update Feature Flag",
+      "method": "PUT",
+      "url": "{{ _.base_url }}/platform/feature-flags/{{ _.feature_flag_id }}",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Envio de Mensagens em Massa v2\",\n  \"default_value\": true\n}"
+      },
+      "parentId": "fld_feature_flags"
+    },
+    {
+      "_id": "req_create_ff_override",
+      "_type": "request",
+      "name": "Create Override",
+      "method": "POST",
+      "url": "{{ _.base_url }}/platform/feature-flags/{{ _.feature_flag_id }}/overrides",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tenant_id\": \"{{ _.tenant_id }}\",\n  \"value\": true,\n  \"reason\": \"Tenant participando do beta\"\n}"
+      },
+      "parentId": "fld_feature_flags"
+    },
+    {
+      "_id": "req_delete_ff_override",
+      "_type": "request",
+      "name": "Delete Override",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/platform/feature-flags/{{ _.feature_flag_id }}/overrides/{{ _.override_id }}",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_feature_flags"
+    },
+
+
+    {
+      "_id": "req_list_platform_users",
+      "_type": "request",
+      "name": "List Platform Users",
+      "method": "GET",
+      "url": "{{ _.base_url }}/platform/users",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_platform_users"
+    },
+    {
+      "_id": "req_create_platform_user",
+      "_type": "request",
+      "name": "Create Platform User",
+      "method": "POST",
+      "url": "{{ _.base_url }}/platform/users",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Julia Suporte\",\n  \"email\": \"julia@plataforma.com.br\",\n  \"role\": \"support\"\n}"
+      },
+      "parentId": "fld_platform_users"
+    },
+    {
+      "_id": "req_update_platform_user",
+      "_type": "request",
+      "name": "Update Platform User",
+      "method": "PUT",
+      "url": "{{ _.base_url }}/platform/users/{{ _.platform_user_id }}",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Julia Suporte Senior\",\n  \"role\": \"admin\"\n}"
+      },
+      "parentId": "fld_platform_users"
+    },
+
+
+    {
+      "_id": "req_health_liveness",
+      "_type": "request",
+      "name": "Health - Liveness",
+      "method": "GET",
+      "url": "{{ _.base_url }}/health/liveness",
+      "headers": [{ "name": "Accept", "value": "application/json" }],
+      "body": {},
+      "parentId": "fld_audit"
+    },
+    {
+      "_id": "req_health_readiness",
+      "_type": "request",
+      "name": "Health - Readiness",
+      "method": "GET",
+      "url": "{{ _.base_url }}/health/readiness",
+      "headers": [{ "name": "Accept", "value": "application/json" }],
+      "body": {},
+      "parentId": "fld_audit"
+    },
+
+
+    {
+      "_id": "req_list_blocks",
+      "_type": "request",
+      "name": "List Blocks",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/blocks",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "parameters": [
+        { "name": "status", "value": "", "disabled": true },
+        { "name": "per_page", "value": "20", "disabled": true }
+      ],
+      "body": {},
+      "parentId": "fld_blocks"
+    },
+    {
+      "_id": "req_create_block",
+      "_type": "request",
+      "name": "Create Block",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/blocks",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Bloco A\",\n  \"identifier\": \"A\"\n}"
+      },
+      "parentId": "fld_blocks"
+    },
+    {
+      "_id": "req_get_block",
+      "_type": "request",
+      "name": "Get Block",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/blocks/{{ _.block_id }}",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_blocks"
+    },
+    {
+      "_id": "req_update_block",
+      "_type": "request",
+      "name": "Update Block",
+      "method": "PUT",
+      "url": "{{ _.base_url }}/tenant/blocks/{{ _.block_id }}",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Bloco A - Torre Norte\"\n}"
+      },
+      "parentId": "fld_blocks"
+    },
+    {
+      "_id": "req_delete_block",
+      "_type": "request",
+      "name": "Deactivate Block",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/tenant/blocks/{{ _.block_id }}",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_blocks"
+    },
+
+
+    {
+      "_id": "req_list_units",
+      "_type": "request",
+      "name": "List Units",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/units",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "parameters": [
+        { "name": "block_id", "value": "", "disabled": true },
+        { "name": "status", "value": "", "disabled": true }
+      ],
+      "body": {},
+      "parentId": "fld_units"
+    },
+    {
+      "_id": "req_create_unit",
+      "_type": "request",
+      "name": "Create Unit",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/units",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"block_id\": \"{{ _.block_id }}\",\n  \"identifier\": \"101\",\n  \"type\": \"apartment\",\n  \"floor\": 1\n}"
+      },
+      "parentId": "fld_units"
+    },
+    {
+      "_id": "req_get_unit",
+      "_type": "request",
+      "name": "Get Unit",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/units/{{ _.unit_id }}",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_units"
+    },
+    {
+      "_id": "req_update_unit",
+      "_type": "request",
+      "name": "Update Unit",
+      "method": "PUT",
+      "url": "{{ _.base_url }}/tenant/units/{{ _.unit_id }}",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"identifier\": \"101-A\",\n  \"floor\": 1\n}"
+      },
+      "parentId": "fld_units"
+    },
+    {
+      "_id": "req_unit_status",
+      "_type": "request",
+      "name": "Change Unit Status",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/tenant/units/{{ _.unit_id }}/status",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"status\": \"inactive\"\n}"
+      },
+      "parentId": "fld_units"
+    },
+    {
+      "_id": "req_list_residents",
+      "_type": "request",
+      "name": "List Unit Residents",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/units/{{ _.unit_id }}/residents",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_units"
+    },
+    {
+      "_id": "req_add_resident",
+      "_type": "request",
+      "name": "Add Resident to Unit",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/units/{{ _.unit_id }}/residents",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tenant_user_id\": \"{{ _.tenant_user_id }}\",\n  \"role_in_unit\": \"owner\",\n  \"is_primary\": true,\n  \"moved_in_at\": \"2026-01-01\"\n}"
+      },
+      "parentId": "fld_units"
+    },
+    {
+      "_id": "req_remove_resident",
+      "_type": "request",
+      "name": "Remove Resident from Unit",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/tenant/units/{{ _.unit_id }}/residents/{{ _.resident_id }}",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_units"
+    },
+
+
+    {
+      "_id": "req_list_tenant_users",
+      "_type": "request",
+      "name": "List Tenant Users",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/users",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "parameters": [
+        { "name": "role", "value": "", "disabled": true },
+        { "name": "status", "value": "", "disabled": true },
+        { "name": "search", "value": "", "disabled": true }
+      ],
+      "body": {},
+      "parentId": "fld_tenant_users"
+    },
+    {
+      "_id": "req_invite_user",
+      "_type": "request",
+      "name": "Invite User",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/users/invite",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"novo.morador@email.com\",\n  \"name\": \"Maria Santos\",\n  \"role\": \"condomino\",\n  \"unit_id\": \"{{ _.unit_id }}\",\n  \"role_in_unit\": \"owner\"\n}"
+      },
+      "parentId": "fld_tenant_users"
+    },
+    {
+      "_id": "req_get_tenant_user",
+      "_type": "request",
+      "name": "Get Tenant User",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/users/{{ _.tenant_user_id }}",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_tenant_users"
+    },
+    {
+      "_id": "req_update_tenant_user",
+      "_type": "request",
+      "name": "Update Tenant User",
+      "method": "PUT",
+      "url": "{{ _.base_url }}/tenant/users/{{ _.tenant_user_id }}",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Maria Santos Silva\",\n  \"phone\": \"11999997777\"\n}"
+      },
+      "parentId": "fld_tenant_users"
+    },
+    {
+      "_id": "req_change_user_status",
+      "_type": "request",
+      "name": "Change User Status",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/tenant/users/{{ _.tenant_user_id }}/status",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"status\": \"blocked\",\n  \"reason\": \"Motivo do bloqueio\"\n}"
+      },
+      "parentId": "fld_tenant_users"
+    },
+
+
+    {
+      "_id": "req_list_spaces",
+      "_type": "request",
+      "name": "List Spaces",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/spaces",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "parameters": [
+        { "name": "type", "value": "", "disabled": true },
+        { "name": "status", "value": "", "disabled": true }
+      ],
+      "body": {},
+      "parentId": "fld_spaces"
+    },
+    {
+      "_id": "req_create_space",
+      "_type": "request",
+      "name": "Create Space",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/spaces",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Salao de Festas\",\n  \"description\": \"Salao com capacidade para 100 pessoas\",\n  \"type\": \"party_hall\",\n  \"capacity\": 100,\n  \"requires_approval\": true,\n  \"max_duration_hours\": 12,\n  \"max_advance_days\": 30,\n  \"min_advance_hours\": 48,\n  \"cancellation_deadline_hours\": 24\n}"
+      },
+      "parentId": "fld_spaces"
+    },
+    {
+      "_id": "req_get_space",
+      "_type": "request",
+      "name": "Get Space",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/spaces/{{ _.space_id }}",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_spaces"
+    },
+    {
+      "_id": "req_update_space",
+      "_type": "request",
+      "name": "Update Space",
+      "method": "PUT",
+      "url": "{{ _.base_url }}/tenant/spaces/{{ _.space_id }}",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Salao de Festas Premium\",\n  \"capacity\": 120\n}"
+      },
+      "parentId": "fld_spaces"
+    },
+    {
+      "_id": "req_space_status",
+      "_type": "request",
+      "name": "Change Space Status",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/tenant/spaces/{{ _.space_id }}/status",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"status\": \"maintenance\"\n}"
+      },
+      "parentId": "fld_spaces"
+    },
+    {
+      "_id": "req_list_availability",
+      "_type": "request",
+      "name": "List Availability",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/spaces/{{ _.space_id }}/availability",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_spaces"
+    },
+    {
+      "_id": "req_create_availability",
+      "_type": "request",
+      "name": "Create Availability Slot",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/spaces/{{ _.space_id }}/availability",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"day_of_week\": 1,\n  \"start_time\": \"08:00\",\n  \"end_time\": \"22:00\"\n}"
+      },
+      "parentId": "fld_spaces"
+    },
+    {
+      "_id": "req_list_space_blocks",
+      "_type": "request",
+      "name": "List Space Blocks",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/spaces/{{ _.space_id }}/blocks",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_spaces"
+    },
+    {
+      "_id": "req_create_space_block",
+      "_type": "request",
+      "name": "Create Space Block",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/spaces/{{ _.space_id }}/blocks",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"reason\": \"Manutencao programada\",\n  \"start_datetime\": \"2026-03-01T08:00:00Z\",\n  \"end_datetime\": \"2026-03-01T18:00:00Z\"\n}"
+      },
+      "parentId": "fld_spaces"
+    },
+    {
+      "_id": "req_list_space_rules",
+      "_type": "request",
+      "name": "List Space Rules",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/spaces/{{ _.space_id }}/rules",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_spaces"
+    },
+    {
+      "_id": "req_create_space_rule",
+      "_type": "request",
+      "name": "Create Space Rule",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/spaces/{{ _.space_id }}/rules",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"rule_key\": \"max_sound_db\",\n  \"rule_value\": \"80\",\n  \"description\": \"Limite de som em decibeis\"\n}"
+      },
+      "parentId": "fld_spaces"
+    },
+
+
+    {
+      "_id": "req_list_reservations",
+      "_type": "request",
+      "name": "List Reservations",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/reservations",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "parameters": [
+        { "name": "space_id", "value": "", "disabled": true },
+        { "name": "unit_id", "value": "", "disabled": true },
+        { "name": "status", "value": "", "disabled": true },
+        { "name": "date_from", "value": "", "disabled": true },
+        { "name": "date_to", "value": "", "disabled": true }
+      ],
+      "body": {},
+      "parentId": "fld_reservations"
+    },
+    {
+      "_id": "req_create_reservation",
+      "_type": "request",
+      "name": "Create Reservation",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/spaces/{{ _.space_id }}/reservations",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"unit_id\": \"{{ _.unit_id }}\",\n  \"start_datetime\": \"2026-03-15T14:00:00Z\",\n  \"end_datetime\": \"2026-03-15T22:00:00Z\",\n  \"expected_guests\": 30,\n  \"notes\": \"Aniversario\"\n}"
+      },
+      "parentId": "fld_reservations"
+    },
+    {
+      "_id": "req_get_reservation",
+      "_type": "request",
+      "name": "Get Reservation",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/reservations/{{ _.reservation_id }}",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_reservations"
+    },
+    {
+      "_id": "req_approve_reservation",
+      "_type": "request",
+      "name": "Approve Reservation",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/tenant/reservations/{{ _.reservation_id }}/approve",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_reservations"
+    },
+    {
+      "_id": "req_reject_reservation",
+      "_type": "request",
+      "name": "Reject Reservation",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/tenant/reservations/{{ _.reservation_id }}/reject",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"reason\": \"Espaco em manutencao na data solicitada\"\n}"
+      },
+      "parentId": "fld_reservations"
+    },
+    {
+      "_id": "req_cancel_reservation",
+      "_type": "request",
+      "name": "Cancel Reservation",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/tenant/reservations/{{ _.reservation_id }}/cancel",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"reason\": \"Cancelamento por motivos pessoais\"\n}"
+      },
+      "parentId": "fld_reservations"
+    },
+    {
+      "_id": "req_checkin_reservation",
+      "_type": "request",
+      "name": "Check-in Reservation",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/tenant/reservations/{{ _.reservation_id }}/check-in",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_reservations"
+    },
+    {
+      "_id": "req_complete_reservation",
+      "_type": "request",
+      "name": "Complete Reservation",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/tenant/reservations/{{ _.reservation_id }}/complete",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_reservations"
+    },
+    {
+      "_id": "req_list_guests",
+      "_type": "request",
+      "name": "List Guests",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/reservations/{{ _.reservation_id }}/guests",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_reservations"
+    },
+    {
+      "_id": "req_add_guest",
+      "_type": "request",
+      "name": "Add Guest",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/reservations/{{ _.reservation_id }}/guests",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Carlos Santos\",\n  \"document\": \"12345678900\",\n  \"document_type\": \"cpf\",\n  \"phone\": \"11999997777\"\n}"
+      },
+      "parentId": "fld_reservations"
+    },
+    {
+      "_id": "req_checkin_guest",
+      "_type": "request",
+      "name": "Guest Check-in",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/tenant/reservations/{{ _.reservation_id }}/guests/{{ _.guest_id }}/check-in",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_reservations"
+    },
+    {
+      "_id": "req_checkout_guest",
+      "_type": "request",
+      "name": "Guest Check-out",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/tenant/reservations/{{ _.reservation_id }}/guests/{{ _.guest_id }}/check-out",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_reservations"
+    },
+    {
+      "_id": "req_list_providers",
+      "_type": "request",
+      "name": "List Service Providers",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/reservations/{{ _.reservation_id }}/service-providers",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_reservations"
+    },
+    {
+      "_id": "req_add_provider",
+      "_type": "request",
+      "name": "Add Service Provider",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/reservations/{{ _.reservation_id }}/service-providers",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Pedro Tecnico\",\n  \"company\": \"SomPro LTDA\",\n  \"document\": \"12345678000190\",\n  \"document_type\": \"cnpj\",\n  \"phone\": \"11999996666\",\n  \"service_description\": \"Servico de som e iluminacao\"\n}"
+      },
+      "parentId": "fld_reservations"
+    },
+
+
+    {
+      "_id": "req_list_rules",
+      "_type": "request",
+      "name": "List Rules",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/rules",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "parameters": [
+        { "name": "category", "value": "", "disabled": true },
+        { "name": "is_active", "value": "", "disabled": true }
+      ],
+      "body": {},
+      "parentId": "fld_governance"
+    },
+    {
+      "_id": "req_create_rule",
+      "_type": "request",
+      "name": "Create Rule",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/rules",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"Proibido som alto apos 22h\",\n  \"description\": \"Descricao detalhada da regra...\",\n  \"category\": \"noise\"\n}"
+      },
+      "parentId": "fld_governance"
+    },
+    {
+      "_id": "req_list_documents",
+      "_type": "request",
+      "name": "List Documents",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/documents",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "parameters": [
+        { "name": "type", "value": "", "disabled": true },
+        { "name": "status", "value": "", "disabled": true }
+      ],
+      "body": {},
+      "parentId": "fld_governance"
+    },
+    {
+      "_id": "req_create_document",
+      "_type": "request",
+      "name": "Create Document",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/documents",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"type\": \"regimento_interno\",\n  \"title\": \"Regimento Interno - Versao 2026\",\n  \"full_text\": \"Capitulo I - Das Disposicoes Gerais\\nArt. 1 - ...\",\n  \"approved_at\": \"2026-01-20T00:00:00Z\",\n  \"approved_in\": \"Assembleia Geral Ordinaria de 20/01/2026\"\n}"
+      },
+      "parentId": "fld_governance"
+    },
+    {
+      "_id": "req_get_document",
+      "_type": "request",
+      "name": "Get Document",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/documents/{{ _.document_id }}",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_governance"
+    },
+    {
+      "_id": "req_activate_document",
+      "_type": "request",
+      "name": "Activate Document",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/tenant/documents/{{ _.document_id }}/activate",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_governance"
+    },
+    {
+      "_id": "req_list_sections",
+      "_type": "request",
+      "name": "List Document Sections",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/documents/{{ _.document_id }}/sections",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_governance"
+    },
+    {
+      "_id": "req_search_documents",
+      "_type": "request",
+      "name": "Search Documents",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/documents/search",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "parameters": [
+        { "name": "q", "value": "horario silencio" }
+      ],
+      "body": {},
+      "parentId": "fld_governance"
+    },
+    {
+      "_id": "req_list_violations",
+      "_type": "request",
+      "name": "List Violations",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/violations",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "parameters": [
+        { "name": "unit_id", "value": "", "disabled": true },
+        { "name": "status", "value": "", "disabled": true },
+        { "name": "type", "value": "", "disabled": true }
+      ],
+      "body": {},
+      "parentId": "fld_governance"
+    },
+    {
+      "_id": "req_create_violation",
+      "_type": "request",
+      "name": "Create Manual Violation",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/violations",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"unit_id\": \"{{ _.unit_id }}\",\n  \"tenant_user_id\": \"{{ _.tenant_user_id }}\",\n  \"type\": \"noise_complaint\",\n  \"severity\": \"medium\",\n  \"description\": \"Barulho excessivo apos 22h.\",\n  \"rule_id\": \"{{ _.rule_id }}\"\n}"
+      },
+      "parentId": "fld_governance"
+    },
+    {
+      "_id": "req_contest_violation",
+      "_type": "request",
+      "name": "Contest Violation",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/tenant/violations/{{ _.violation_id }}/contest",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"reason\": \"Motivo da contestacao...\"\n}"
+      },
+      "parentId": "fld_governance"
+    },
+    {
+      "_id": "req_uphold_violation",
+      "_type": "request",
+      "name": "Uphold Violation",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/tenant/violations/{{ _.violation_id }}/uphold",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"response\": \"Infracao mantida. Evidencias confirmam...\"\n}"
+      },
+      "parentId": "fld_governance"
+    },
+    {
+      "_id": "req_revoke_violation",
+      "_type": "request",
+      "name": "Revoke Violation",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/tenant/violations/{{ _.violation_id }}/revoke",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"reason\": \"Infracao revogada por...\"\n}"
+      },
+      "parentId": "fld_governance"
+    },
+    {
+      "_id": "req_list_penalties",
+      "_type": "request",
+      "name": "List Penalties",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/penalties",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_governance"
+    },
+    {
+      "_id": "req_revoke_penalty",
+      "_type": "request",
+      "name": "Revoke Penalty",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/tenant/penalties/{{ _.penalty_id }}/revoke",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"reason\": \"Motivo da revogacao\"\n}"
+      },
+      "parentId": "fld_governance"
+    },
+    {
+      "_id": "req_list_penalty_policies",
+      "_type": "request",
+      "name": "List Penalty Policies",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/penalty-policies",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_governance"
+    },
+    {
+      "_id": "req_create_penalty_policy",
+      "_type": "request",
+      "name": "Create Penalty Policy",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/penalty-policies",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"violation_type\": \"no_show\",\n  \"occurrence_threshold\": 3,\n  \"penalty_type\": \"temporary_block\",\n  \"block_days\": 30\n}"
+      },
+      "parentId": "fld_governance"
+    },
+
+
+    {
+      "_id": "req_list_announcements",
+      "_type": "request",
+      "name": "List Announcements",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/announcements",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "parameters": [
+        { "name": "priority", "value": "", "disabled": true },
+        { "name": "audience_type", "value": "", "disabled": true }
+      ],
+      "body": {},
+      "parentId": "fld_communication"
+    },
+    {
+      "_id": "req_create_announcement",
+      "_type": "request",
+      "name": "Create Announcement",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/announcements",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"Manutencao na piscina\",\n  \"body\": \"A piscina estara fechada de 01/03 a 05/03 para manutencao.\",\n  \"priority\": \"high\",\n  \"audience_type\": \"all\",\n  \"audience_ids\": null,\n  \"expires_at\": \"2026-03-05T23:59:59Z\"\n}"
+      },
+      "parentId": "fld_communication"
+    },
+    {
+      "_id": "req_mark_read",
+      "_type": "request",
+      "name": "Mark Announcement as Read",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/announcements/{{ _.announcement_id }}/read",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_communication"
+    },
+    {
+      "_id": "req_announcement_reads",
+      "_type": "request",
+      "name": "Announcement Read Status",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/announcements/{{ _.announcement_id }}/reads",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_communication"
+    },
+    {
+      "_id": "req_list_support",
+      "_type": "request",
+      "name": "List Support Requests",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/support-requests",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "parameters": [
+        { "name": "status", "value": "", "disabled": true },
+        { "name": "category", "value": "", "disabled": true }
+      ],
+      "body": {},
+      "parentId": "fld_communication"
+    },
+    {
+      "_id": "req_create_support",
+      "_type": "request",
+      "name": "Create Support Request",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/support-requests",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"subject\": \"Vazamento no banheiro\",\n  \"category\": \"maintenance\",\n  \"priority\": \"high\"\n}"
+      },
+      "parentId": "fld_communication"
+    },
+    {
+      "_id": "req_get_support",
+      "_type": "request",
+      "name": "Get Support Request",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/support-requests/{{ _.support_request_id }}",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_communication"
+    },
+    {
+      "_id": "req_change_support_status",
+      "_type": "request",
+      "name": "Change Support Status",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/tenant/support-requests/{{ _.support_request_id }}/status",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"status\": \"in_progress\"\n}"
+      },
+      "parentId": "fld_communication"
+    },
+    {
+      "_id": "req_list_messages",
+      "_type": "request",
+      "name": "List Support Messages",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/support-requests/{{ _.support_request_id }}/messages",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_communication"
+    },
+    {
+      "_id": "req_add_message",
+      "_type": "request",
+      "name": "Add Support Message",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/support-requests/{{ _.support_request_id }}/messages",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"body\": \"Texto da mensagem...\",\n  \"is_internal\": false\n}"
+      },
+      "parentId": "fld_communication"
+    },
+
+
+    {
+      "_id": "req_gate_today",
+      "_type": "request",
+      "name": "Today's Reservations",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/gate/today",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_gate"
+    },
+    {
+      "_id": "req_gate_expected",
+      "_type": "request",
+      "name": "Expected Arrivals",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/gate/expected",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_gate"
+    },
+    {
+      "_id": "req_gate_checkin",
+      "_type": "request",
+      "name": "Quick Check-in (by document)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/gate/check-in",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"document\": \"12345678900\"\n}"
+      },
+      "parentId": "fld_gate"
+    },
+    {
+      "_id": "req_gate_checkout",
+      "_type": "request",
+      "name": "Quick Check-out (by document)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/gate/check-out",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"document\": \"12345678900\"\n}"
+      },
+      "parentId": "fld_gate"
+    },
+
+
+    {
+      "_id": "req_get_settings",
+      "_type": "request",
+      "name": "Get Settings",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/settings",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_settings"
+    },
+    {
+      "_id": "req_update_settings",
+      "_type": "request",
+      "name": "Update Settings",
+      "method": "PUT",
+      "url": "{{ _.base_url }}/tenant/settings",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"timezone\": \"America/Sao_Paulo\",\n  \"locale\": \"pt-BR\",\n  \"notifications_enabled\": true,\n  \"auto_close_support_days\": 7\n}"
+      },
+      "parentId": "fld_settings"
+    },
+    {
+      "_id": "req_get_features",
+      "_type": "request",
+      "name": "Get Tenant Features",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/features",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_settings"
+    },
+
+
+    {
+      "_id": "req_dashboard_overview",
+      "_type": "request",
+      "name": "Dashboard Overview",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/dashboard/overview",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_dashboard"
+    },
+    {
+      "_id": "req_dashboard_reservations",
+      "_type": "request",
+      "name": "Reservation Stats",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/dashboard/reservations",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "parameters": [
+        { "name": "period", "value": "30d" }
+      ],
+      "body": {},
+      "parentId": "fld_dashboard"
+    },
+    {
+      "_id": "req_dashboard_governance",
+      "_type": "request",
+      "name": "Governance Stats",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/dashboard/governance",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_dashboard"
+    },
+    {
+      "_id": "req_dashboard_occupancy",
+      "_type": "request",
+      "name": "Space Occupancy",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/dashboard/occupancy",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "parameters": [
+        { "name": "period", "value": "30d" },
+        { "name": "space_id", "value": "", "disabled": true }
+      ],
+      "body": {},
+      "parentId": "fld_dashboard"
+    },
+
+
+    {
+      "_id": "req_ai_chat",
+      "_type": "request",
+      "name": "AI Chat",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/ai/chat",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"message\": \"Quais sao os horarios disponiveis para o salao de festas na proxima semana?\"\n}"
+      },
+      "parentId": "fld_ai"
+    },
+    {
+      "_id": "req_ai_suggest",
+      "_type": "request",
+      "name": "AI Suggestions",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/ai/suggest",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"context\": \"reservation\",\n  \"space_id\": \"{{ _.space_id }}\",\n  \"date\": \"2026-03-20\"\n}"
+      },
+      "parentId": "fld_ai"
+    },
+    {
+      "_id": "req_ai_actions",
+      "_type": "request",
+      "name": "AI Pending Actions",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/ai/actions",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_ai"
+    },
+    {
+      "_id": "req_ai_confirm",
+      "_type": "request",
+      "name": "Confirm AI Action",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/tenant/ai/actions/{{ _.ai_action_id }}/confirm",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_ai"
+    },
+    {
+      "_id": "req_ai_reject",
+      "_type": "request",
+      "name": "Reject AI Action",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/tenant/ai/actions/{{ _.ai_action_id }}/reject",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"reason\": \"Nao desejo fazer essa reserva\"\n}"
+      },
+      "parentId": "fld_ai"
+    }
+  ]
+}
