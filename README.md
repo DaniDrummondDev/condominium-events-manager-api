@@ -1,59 +1,120 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Condominium Events Manager API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API multi-tenant (SaaS B2B) para gestao de condominios, incluindo reservas de espacos comuns, governanca, controle de pessoas e comunicacao. Construida com **Laravel**, **PostgreSQL** (pgvector), **Redis** e arquitetura **DDD + Clean Architecture**.
 
-## About Laravel
+## Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+| Componente | Tecnologia |
+|---|---|
+| Framework | Laravel 11 / PHP 8.4 |
+| Banco de dados | PostgreSQL 17 + pgvector |
+| Cache / Filas / Sessao | Redis 7 |
+| E-mail (dev) | Mailpit |
+| Testes | Pest v4 |
+| Containerizacao | Docker (PHP-FPM + Nginx) |
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requisitos
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Docker e Docker Compose V2
+- Git
 
-## Learning Laravel
+## Instalacao
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+```bash
+git clone git@github.com:DaniDrummondDev/condominium-events-manager-api.git
+cd condominium-events-manager-api
+./setup.sh
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+O script `setup.sh` executa automaticamente:
 
-## Laravel Sponsors
+1. Build e start dos containers Docker
+2. Instalacao do Laravel e dependencias (producao + dev)
+3. Configuracao do `.env`
+4. Geracao de chaves, migrations e publish de configs
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Apos a execucao:
 
-### Premium Partners
+| Servico | URL |
+|---|---|
+| API | http://localhost:8000 |
+| Mailpit | http://localhost:8025 |
+| PostgreSQL | localhost:5432 |
+| Redis | localhost:6379 |
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Comandos Uteis
 
-## Contributing
+```bash
+docker compose exec app php artisan tinker       # Tinker
+docker compose exec app ./vendor/bin/pest         # Testes (Pest)
+docker compose exec app php artisan migrate       # Migrations
+docker compose exec app php artisan horizon       # Filas (Horizon)
+docker compose logs -f app                        # Logs
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Testes com Insomnia
 
-## Code of Conduct
+Importe a collection em **File > Import** no Insomnia:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```
+docs/insomnia/insomnia-collection.json
+```
 
-## Security Vulnerabilities
+Contém ~120 requests cobrindo todos os endpoints da Platform API e Tenant API, com variáveis de ambiente pré-configuradas.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Documentacao
 
-## License
+### Dominio
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+| Documento | Descricao |
+|---|---|
+| [Bounded Contexts](docs/domain/bounded-contexts.md) | Contextos delimitados e suas fronteiras |
+| [Linguagem Ubiqua](docs/domain/ubiquitous-language.md) | Glossario de termos do dominio |
+| [Modelo de Dominio](docs/domain/domain-model.md) | Entidades, Value Objects, Aggregates |
+| [Casos de Uso](docs/domain/use-cases.md) | Fluxos detalhados de cada operacao |
+
+### Arquitetura
+
+| Documento | Descricao |
+|---|---|
+| [Arquitetura Tecnica](docs/architecture/technical-architecture.md) | Visao geral da arquitetura |
+| [Multi-Tenancy](docs/architecture/multi-tenancy-implementation.md) | Estrategia de isolamento por tenant |
+| [Estrutura do Projeto](docs/architecture/project-structure.md) | Organizacao de pastas e camadas |
+| [Banco de Dados](docs/architecture/database-architecture.md) | Schema completo (42 tabelas) |
+
+### Seguranca
+
+| Documento | Descricao |
+|---|---|
+| [Fluxos de Autenticacao](docs/security/auth-flows.md) | OAuth 2.1, JWT RS256, MFA TOTP |
+| [Matriz de Autorizacao](docs/security/authorization-matrix.md) | Permissoes por role e recurso |
+
+### API
+
+| Documento | Descricao |
+|---|---|
+| [Guidelines de API](docs/api/api-design-guidelines.md) | Padroes e convencoes da API |
+| [Platform API](docs/api/platform-api.md) | Endpoints da plataforma (admin) |
+| [Tenant API](docs/api/tenant-api.md) | Endpoints do tenant (condominio) |
+
+### Front-end
+
+| Documento | Descricao |
+|---|---|
+| [Integracao Front-end](docs/front-end/frontend-auth-integration.md) | Spec de autenticacao para o front |
+
+### Roadmap
+
+| Documento | Descricao |
+|---|---|
+| [Roadmap de Implementacao](docs/roadmap/roadmap-implementacao.md) | Fases e entregas planejadas |
+| [Roadmap Tecnico (Skills)](docs/roadmap/roadmap-tecnico-skills.md) | 44 skills em 9 fases |
+| [Features Futuras](docs/roadmap/future-features.md) | Funcionalidades planejadas |
+
+### Outros
+
+| Documento | Descricao |
+|---|---|
+| [Visao Geral do Projeto](docs/project-overview.md) | Resumo executivo |
+| [Estrutura de Skills](docs/estrutura-pastas-skills.md) | Organizacao das skills do Claude |
+| [Insomnia Collection](docs/insomnia/insomnia-collection.json) | Collection importavel para testes |
