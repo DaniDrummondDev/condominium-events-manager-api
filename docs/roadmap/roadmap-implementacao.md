@@ -56,7 +56,7 @@ Infraestrutura e fundacao (Fase 0)
 Criar a estrutura de pastas conforme definido em `project-structure.md`:
 
 ```
-app/
+src/
   Domain/
     Shared/
       ValueObjects/
@@ -88,6 +88,8 @@ app/
     People/
     Communication/
     AI/
+
+app/
   Infrastructure/
     Persistence/
       Platform/
@@ -123,11 +125,11 @@ app/
 
 Classes base a implementar:
 
-- `App\Domain\Shared\Events\DomainEvent` — interface com `occurredAt()`, `aggregateId()`, `eventName()`
-- `App\Domain\Shared\Exceptions\DomainException` — exception base com `code` e `context`
-- `App\Domain\Shared\ValueObjects\Uuid` — wrapper para UUIDv7 com validacao e imutabilidade
-- `App\Domain\Shared\ValueObjects\DateRange` — periodo com invariante `start < end`
-- `App\Domain\Shared\ValueObjects\Money` — valor monetario com `amount` (int, centavos) e `currency`
+- `Domain\Shared\Events\DomainEvent` — interface com `occurredAt()`, `aggregateId()`, `eventName()`
+- `Domain\Shared\Exceptions\DomainException` — exception base com `code` e `context`
+- `Domain\Shared\ValueObjects\Uuid` — wrapper para UUIDv7 com validacao e imutabilidade
+- `Domain\Shared\ValueObjects\DateRange` — periodo com invariante `start < end`
+- `Domain\Shared\ValueObjects\Money` — valor monetario com `amount` (int, centavos) e `currency`
 
 ### 0.3 Configuracao de Banco de Dados
 
@@ -147,10 +149,10 @@ Classes base a implementar:
 
 - Instalar `pestphp/pest-plugin-arch`
 - Criar `tests/Architecture/LayerDependencyTest.php`:
-  - Domain nao depende de nenhuma camada externa (sem `use Illuminate\...`, sem `use App\Infrastructure\...`, sem `use App\Application\...`)
-  - Application nao depende de Infrastructure nem Interface
-  - Infrastructure pode depender de Domain e Application
-  - Interface pode depender de Application, nao de Domain diretamente
+  - `Domain\` nao depende de nenhuma camada externa (sem `use Illuminate\...`, sem `use App\...`, sem `use Application\...`)
+  - `Application\` pode usar `Domain\`, nao pode usar `App\...` nem `Illuminate\...`
+  - `App\Infrastructure\` pode depender de `Domain\` e `Application\`
+  - `App\Interface\` pode depender de `Application\`, nao de `Domain\` diretamente
 - Criar `tests/Architecture/NamingConventionTest.php`:
   - Models Eloquent terminam com `Model` (ex: `TenantModel`)
   - Repositories terminam com `Repository` (ex: `EloquentTenantRepository`)
@@ -211,24 +213,24 @@ Migrations em `database/migrations/platform/`:
 
 **Domain Layer:**
 
-- `App\Domain\Tenant\Entities\Tenant` — entidade com regras de transicao de status:
+- `Domain\Tenant\Entities\Tenant` — entidade com regras de transicao de status:
   - Metodos: `activate()`, `suspend()`, `cancel()`, `archive()`
   - Invariante: transicoes de status validadas conforme maquina de estados
-- `App\Domain\Tenant\Enums\TenantStatus` — enum com estados:
+- `Domain\Tenant\Enums\TenantStatus` — enum com estados:
   - `prospect`, `trial`, `provisioning`, `active`, `past_due`, `suspended`, `canceled`, `archived`
-- `App\Domain\Tenant\Events\TenantCreated`
-- `App\Domain\Tenant\Events\TenantSuspended`
-- `App\Domain\Tenant\Events\TenantProvisioned`
+- `Domain\Tenant\Events\TenantCreated`
+- `Domain\Tenant\Events\TenantSuspended`
+- `Domain\Tenant\Events\TenantProvisioned`
 
 **Application Layer:**
 
-- `App\Application\Tenant\Contracts\TenantRepositoryInterface`:
+- `Application\Tenant\Contracts\TenantRepositoryInterface`:
   - `findById()`, `findBySlug()`, `save()`, `findAllActive()`, `findAllForMigration()`
-- `App\Application\Tenant\UseCases\ProvisionTenant`:
+- `Application\Tenant\UseCases\ProvisionTenant`:
   - Valida dados, cria registro, despacha `ProvisionTenantJob`
-- `App\Application\Tenant\UseCases\SuspendTenant`:
+- `Application\Tenant\UseCases\SuspendTenant`:
   - Valida status atual, executa transicao, emite evento
-- `App\Application\Tenant\DTOs\CreateTenantDTO`
+- `Application\Tenant\DTOs\CreateTenantDTO`
 
 **Infrastructure Layer:**
 
@@ -292,7 +294,7 @@ Sistema capaz de criar tenants, provisionar databases isolados, executar migrati
 
 ### 2.1 Platform Authentication
 
-- `App\Domain\Shared\Entities\PlatformUser` — entidade de usuario da plataforma (Platform Owner, Platform Admin)
+- `Domain\Shared\Entities\PlatformUser` — entidade de usuario da plataforma (Platform Owner, Platform Admin)
 - Use cases:
   - `LoginPlatformUser` — valida credenciais, gera JWT (RS256)
   - `RefreshPlatformToken` — renova token antes da expiracao
@@ -305,7 +307,7 @@ Sistema capaz de criar tenants, provisionar databases isolados, executar migrati
 
 **Domain:**
 
-- `App\Domain\Unit\Entities\TenantUser`:
+- `Domain\Unit\Entities\TenantUser`:
   - Campos: id, tenant_id, name, email, password_hash, role, status, invited_at, activated_at, last_login_at
   - Status: `invited`, `active`, `inactive`, `blocked`
 
@@ -352,7 +354,7 @@ Sistema capaz de criar tenants, provisionar databases isolados, executar migrati
 
 ### 2.4 Audit Logging
 
-- `App\Domain\Shared\Entities\AuditLog`:
+- `Domain\Shared\Entities\AuditLog`:
   - Campos: id, actor_type, actor_id, action, resource_type, resource_id, context (jsonb), ip_address, user_agent, created_at
 - Migration: `create_tenant_audit_logs_table` em `database/migrations/tenant/`
   - (Platform audit logs ja criados na Fase 1)
@@ -395,12 +397,12 @@ Sistema completo de autenticacao (platform + tenant), autorizacao baseada em pap
 
 **Domain:**
 
-- `App\Domain\Billing\Entities\Plan` — plano do SaaS
-- `App\Domain\Billing\Entities\PlanVersion` — versao do plano com precos e features
-- `App\Domain\Billing\Entities\Subscription` — assinatura com maquina de estados:
+- `Domain\Billing\Entities\Plan` — plano do SaaS
+- `Domain\Billing\Entities\PlanVersion` — versao do plano com precos e features
+- `Domain\Billing\Entities\Subscription` — assinatura com maquina de estados:
   - Status: `trialing`, `active`, `past_due`, `suspended`, `canceled`, `expired`
   - Transicoes controladas por metodos de dominio
-- `App\Domain\Billing\Enums\SubscriptionStatus`
+- `Domain\Billing\Enums\SubscriptionStatus`
 
 **Use Cases:**
 
@@ -417,11 +419,11 @@ Sistema completo de autenticacao (platform + tenant), autorizacao baseada em pap
 
 **Domain:**
 
-- `App\Domain\Billing\Entities\Invoice`:
+- `Domain\Billing\Entities\Invoice`:
   - Campos: id, tenant_id, subscription_id, number, status, subtotal, tax, total, due_date, paid_at
-- `App\Domain\Billing\Entities\InvoiceItem`:
+- `Domain\Billing\Entities\InvoiceItem`:
   - Campos: id, invoice_id, description, quantity, unit_price, total
-- `App\Domain\Billing\Enums\InvoiceStatus`:
+- `Domain\Billing\Enums\InvoiceStatus`:
   - `draft`, `issued`, `paid`, `overdue`, `canceled`, `refunded`
 
 **Use Cases:**
@@ -438,14 +440,14 @@ Sistema completo de autenticacao (platform + tenant), autorizacao baseada em pap
 
 **Domain:**
 
-- `App\Domain\Billing\Entities\Payment`:
+- `Domain\Billing\Entities\Payment`:
   - Campos: id, invoice_id, amount, status, gateway, gateway_id, paid_at, failed_at, metadata
-- `App\Domain\Billing\Enums\PaymentStatus`:
+- `Domain\Billing\Enums\PaymentStatus`:
   - `pending`, `processing`, `confirmed`, `failed`, `refunded`
 
 **Application:**
 
-- `App\Application\Billing\Contracts\PaymentGatewayInterface`:
+- `Application\Billing\Contracts\PaymentGatewayInterface`:
   - `charge(Money $amount, array $paymentMethod): PaymentResult`
   - `refund(string $gatewayId, Money $amount): RefundResult`
   - `getPaymentStatus(string $gatewayId): PaymentStatus`
@@ -474,9 +476,9 @@ Sistema completo de autenticacao (platform + tenant), autorizacao baseada em pap
 
 **Domain:**
 
-- `App\Domain\Billing\Entities\DunningPolicy`:
+- `Domain\Billing\Entities\DunningPolicy`:
   - Define regras de tentativa de cobranca (intervalos, max tentativas)
-- `App\Domain\Billing\Entities\DunningAttempt`:
+- `Domain\Billing\Entities\DunningAttempt`:
   - Registro de cada tentativa de cobranca
 
 **Use Cases:**
@@ -529,9 +531,9 @@ GET            /platform/payments
 
 **Domain:**
 
-- `App\Domain\Billing\Entities\Feature`:
+- `Domain\Billing\Entities\Feature`:
   - Campos: id, key (unique), name, description, type (boolean/limit/percentage)
-- `App\Domain\Billing\Entities\TenantFeatureOverride`:
+- `Domain\Billing\Entities\TenantFeatureOverride`:
   - Campos: id, tenant_id, feature_key, value, reason, overridden_by, expires_at
 
 **Infrastructure:**
@@ -576,11 +578,11 @@ Sistema completo de billing com gestao de planos, assinaturas com maquina de est
 
 **Domain:**
 
-- `App\Domain\Unit\Entities\Block`:
+- `Domain\Unit\Entities\Block`:
   - Campos: id, name, identifier (ex: "Bloco A"), description, is_active
-- `App\Domain\Unit\Entities\Unit`:
+- `Domain\Unit\Entities\Unit`:
   - Campos: id, block_id, number, floor, type, is_active, is_occupied
-- `App\Domain\Unit\Enums\UnitType`:
+- `Domain\Unit\Enums\UnitType`:
   - `apartment`, `house`, `store`, `office`, `other`
 
 **Migrations (tenant DB):**
@@ -592,8 +594,8 @@ Sistema completo de billing com gestao de planos, assinaturas com maquina de est
 
 - `App\Infrastructure\Persistence\Tenant\Models\BlockModel`
 - `App\Infrastructure\Persistence\Tenant\Models\UnitModel`
-- `App\Application\Unit\Contracts\BlockRepositoryInterface`
-- `App\Application\Unit\Contracts\UnitRepositoryInterface`
+- `Application\Unit\Contracts\BlockRepositoryInterface`
+- `Application\Unit\Contracts\UnitRepositoryInterface`
 - `App\Infrastructure\Persistence\Tenant\Repositories\EloquentBlockRepository`
 - `App\Infrastructure\Persistence\Tenant\Repositories\EloquentUnitRepository`
 
@@ -609,12 +611,12 @@ Sistema completo de billing com gestao de planos, assinaturas com maquina de est
 
 **Domain:**
 
-- `App\Domain\Unit\Entities\Resident`:
+- `Domain\Unit\Entities\Resident`:
   - Campos: id, unit_id, tenant_user_id, name, email, phone, role, is_primary, is_active, moved_in_at, moved_out_at
-- `App\Domain\Unit\Enums\ResidentRole`:
+- `Domain\Unit\Enums\ResidentRole`:
   - `owner` (proprietario), `tenant_resident` (inquilino), `dependent` (dependente), `authorized` (autorizado)
-- `App\Domain\Unit\Events\ResidentInvited`
-- `App\Domain\Unit\Events\ResidentActivated`
+- `Domain\Unit\Events\ResidentInvited`
+- `Domain\Unit\Events\ResidentActivated`
 
 **Migrations (tenant DB):**
 
@@ -623,7 +625,7 @@ Sistema completo de billing com gestao de planos, assinaturas com maquina de est
 **Infrastructure:**
 
 - `App\Infrastructure\Persistence\Tenant\Models\ResidentModel`
-- `App\Application\Unit\Contracts\ResidentRepositoryInterface`
+- `Application\Unit\Contracts\ResidentRepositoryInterface`
 - `App\Infrastructure\Persistence\Tenant\Repositories\EloquentResidentRepository`
 
 **Use Cases:**
@@ -684,7 +686,7 @@ POST           /tenant/residents/invite
 
 ### 4.4 Integracao de Notificacoes
 
-- `App\Application\Shared\Contracts\NotificationServiceInterface`:
+- `Application\Shared\Contracts\NotificationServiceInterface`:
   - `send(string $channel, string $to, string $template, array $data): void`
 - `App\Infrastructure\Notifications\EmailNotificationAdapter`:
   - Implementa `NotificationServiceInterface` para canal email
@@ -724,30 +726,30 @@ Gestao completa de blocos, unidades e moradores com fluxo de convite, ativacao e
 
 **Entidades:**
 
-- `App\Domain\Space\Entities\Space`:
+- `Domain\Space\Entities\Space`:
   - Campos: id, name, description, type, status, capacity, location, requires_approval, advance_booking_days, max_duration_hours, cancellation_deadline_hours, is_active
-- `App\Domain\Space\Entities\SpaceAvailability`:
+- `Domain\Space\Entities\SpaceAvailability`:
   - Campos: id, space_id, day_of_week, start_time, end_time, is_active
   - Define janelas de disponibilidade recorrentes
-- `App\Domain\Space\Entities\SpaceBlock`:
+- `Domain\Space\Entities\SpaceBlock`:
   - Campos: id, space_id, reason, blocked_by, start_date, end_date, created_at
   - Bloqueio temporario do espaco (manutencao, evento, etc.)
-- `App\Domain\Space\Entities\SpaceRule`:
+- `Domain\Space\Entities\SpaceRule`:
   - Campos: id, space_id, rule_key, rule_value, description
   - Regras especificas por espaco (ex: max_guests, requires_deposit, noise_limit_hour)
 
 **Enums:**
 
-- `App\Domain\Space\Enums\SpaceType`:
+- `Domain\Space\Enums\SpaceType`:
   - `party_room`, `barbecue`, `sports_court`, `pool`, `gym`, `playground`, `meeting_room`, `garden`, `other`
-- `App\Domain\Space\Enums\SpaceStatus`:
+- `Domain\Space\Enums\SpaceStatus`:
   - `active`, `inactive`, `maintenance`, `blocked`
 
 **Events:**
 
-- `App\Domain\Space\Events\SpaceCreated`
-- `App\Domain\Space\Events\SpaceBlocked`
-- `App\Domain\Space\Events\SpaceDeactivated`
+- `Domain\Space\Events\SpaceCreated`
+- `Domain\Space\Events\SpaceBlocked`
+- `Domain\Space\Events\SpaceDeactivated`
 
 **Migrations (tenant DB):**
 
@@ -760,7 +762,7 @@ Gestao completa de blocos, unidades e moradores com fluxo de convite, ativacao e
 
 **Contracts:**
 
-- `App\Application\Space\Contracts\SpaceRepositoryInterface`:
+- `Application\Space\Contracts\SpaceRepositoryInterface`:
   - `findById()`, `findAllActive()`, `findAvailableForDate()`, `save()`
 
 **Use Cases:**
@@ -849,29 +851,29 @@ Gestao completa de espacos comuns com configuracao de disponibilidade, bloqueios
 
 ### 6.1 Reservation Domain
 
-- `App\Domain\Reservation\Entities\Reservation` (Aggregate Root):
+- `Domain\Reservation\Entities\Reservation` (Aggregate Root):
   - Campos: id, space_id, unit_id, resident_id, title, description, status, start_datetime, end_datetime, guest_count, requires_approval, approved_by, approved_at, canceled_by, canceled_at, cancellation_reason, completed_at, no_show_at, no_show_by, created_at, updated_at
-- `App\Domain\Reservation\Enums\ReservationStatus` (maquina de estados):
+- `Domain\Reservation\Enums\ReservationStatus` (maquina de estados):
   - `pending_approval`, `confirmed`, `rejected`, `canceled`, `in_progress`, `completed`, `no_show`
   - Transicoes:
     - `pending_approval` -> `confirmed` | `rejected` | `canceled`
     - `confirmed` -> `canceled` | `in_progress`
     - `in_progress` -> `completed` | `no_show`
-- `App\Domain\Reservation\Services\ConflictChecker` (Domain Service):
+- `Domain\Reservation\Services\ConflictChecker` (Domain Service):
   - Verifica conflitos de horario para o mesmo espaco
   - Usa lock pessimista (SELECT FOR UPDATE) para evitar race conditions
   - Metodo: `checkConflicts(string $spaceId, DateRange $period, ?string $excludeReservationId): bool`
-- `App\Domain\Reservation\Exceptions\ConflictException` — reserva conflita com outra existente
-- `App\Domain\Reservation\Exceptions\BlockedException` — espaco bloqueado no periodo
+- `Domain\Reservation\Exceptions\ConflictException` — reserva conflita com outra existente
+- `Domain\Reservation\Exceptions\BlockedException` — espaco bloqueado no periodo
 
 **Events:**
 
-- `App\Domain\Reservation\Events\ReservationRequested`
-- `App\Domain\Reservation\Events\ReservationConfirmed`
-- `App\Domain\Reservation\Events\ReservationRejected`
-- `App\Domain\Reservation\Events\ReservationCanceled`
-- `App\Domain\Reservation\Events\ReservationCompleted`
-- `App\Domain\Reservation\Events\ReservationNoShow`
+- `Domain\Reservation\Events\ReservationRequested`
+- `Domain\Reservation\Events\ReservationConfirmed`
+- `Domain\Reservation\Events\ReservationRejected`
+- `Domain\Reservation\Events\ReservationCanceled`
+- `Domain\Reservation\Events\ReservationCompleted`
+- `Domain\Reservation\Events\ReservationNoShow`
 
 **Migration (tenant DB):**
 
@@ -881,7 +883,7 @@ Gestao completa de espacos comuns com configuracao de disponibilidade, bloqueios
 
 **Contracts:**
 
-- `App\Application\Reservation\Contracts\ReservationRepositoryInterface`:
+- `Application\Reservation\Contracts\ReservationRepositoryInterface`:
   - `findById()`, `findBySpace()`, `findByUnit()`, `findByResident()`, `findConflicting()`, `save()`
   - `countMonthlyByUnit(string $unitId, string $spaceId, Carbon $month): int`
 
@@ -1033,17 +1035,17 @@ Sistema completo de reservas com prevencao de conflitos via lock pessimista, maq
 
 **Entidades:**
 
-- `App\Domain\Governance\Entities\CondominiumRule`:
+- `Domain\Governance\Entities\CondominiumRule`:
   - Campos: id, title, description, category, is_active, order, created_by, created_at
-- `App\Domain\Governance\Entities\Violation`:
+- `Domain\Governance\Entities\Violation`:
   - Campos: id, unit_id, resident_id, type, description, severity, status, source, source_id, registered_by, confirmed_by, confirmed_at, dismissed_by, dismissed_at, dismissed_reason, created_at
   - Status: `pending`, `confirmed`, `dismissed`, `contested`
-- `App\Domain\Governance\Entities\Penalty`:
+- `Domain\Governance\Entities\Penalty`:
   - Campos: id, violation_id, unit_id, type, description, severity, starts_at, ends_at, is_active, applied_by, revoked_by, revoked_at, revoked_reason
-- `App\Domain\Governance\Entities\PenaltyPolicy`:
+- `Domain\Governance\Entities\PenaltyPolicy`:
   - Campos: id, violation_type, severity, penalty_type, duration_days, is_escalating, max_escalation_level, is_active
   - Define regras automaticas: para cada tipo/severidade de violacao, qual penalidade aplicar
-- `App\Domain\Governance\Entities\ViolationContestation`:
+- `Domain\Governance\Entities\ViolationContestation`:
   - Campos: id, violation_id, resident_id, reason, evidence_description, status, reviewed_by, reviewed_at, review_notes, created_at
   - Status: `pending`, `accepted`, `rejected`
 
@@ -1167,13 +1169,13 @@ Sistema completo de governanca com regulamento interno configuravel, registro de
 
 **Entidades:**
 
-- `App\Domain\People\Entities\Guest`:
+- `Domain\People\Entities\Guest`:
   - Campos: id, reservation_id, name, document, phone, status, checked_in_at, checked_out_at, checked_in_by, denied_by, denied_reason
-- `App\Domain\People\Entities\ServiceProvider`:
+- `Domain\People\Entities\ServiceProvider`:
   - Campos: id, company_name, name, document, phone, service_type, is_active, created_by, created_at
-- `App\Domain\People\Entities\ServiceProviderVisit`:
+- `Domain\People\Entities\ServiceProviderVisit`:
   - Campos: id, service_provider_id, unit_id, scheduled_date, purpose, status, checked_in_at, checked_out_at, checked_in_by, notes
-- `App\Domain\People\Enums\GuestStatus`:
+- `Domain\People\Enums\GuestStatus`:
   - `registered`, `checked_in`, `checked_out`, `denied`, `no_show`
 
 **Events:**
@@ -1266,13 +1268,13 @@ Controle completo de convidados (vinculados a reservas) e prestadores de servico
 
 **Entidades:**
 
-- `App\Domain\Communication\Entities\Announcement`:
+- `Domain\Communication\Entities\Announcement`:
   - Campos: id, title, body, priority, audience_type (all, block, units), audience_ids (jsonb), status, published_by, published_at, archived_at
-- `App\Domain\Communication\Entities\AnnouncementRead`:
+- `Domain\Communication\Entities\AnnouncementRead`:
   - Campos: id, announcement_id, tenant_user_id, read_at
-- `App\Domain\Communication\Entities\SupportRequest`:
+- `Domain\Communication\Entities\SupportRequest`:
   - Campos: id, unit_id, resident_id, subject, category, status, priority, assigned_to, created_at, resolved_at, closed_at
-- `App\Domain\Communication\Entities\SupportMessage`:
+- `Domain\Communication\Entities\SupportMessage`:
   - Campos: id, support_request_id, author_id, author_type, body, created_at
 
 **Enums:**
@@ -1425,10 +1427,10 @@ Dashboards operacionais para sindico/administradora (visao do condominio), condo
 
 **Application:**
 
-- `App\Application\AI\Contracts\AIProviderInterface`:
+- `Application\AI\Contracts\AIProviderInterface`:
   - `chat(array $messages, array $tools = []): AIResponse`
   - `generateEmbedding(string $text): array`
-- `App\Application\AI\Contracts\EmbeddingServiceInterface`:
+- `Application\AI\Contracts\EmbeddingServiceInterface`:
   - `embed(string $text): array`
   - `search(array $embedding, int $limit): Collection`
 
@@ -1448,14 +1450,14 @@ Dashboards operacionais para sindico/administradora (visao do condominio), condo
 
 ### 11.2 Conversational Assistant
 
-- `App\Application\AI\ConversationalAssistant`:
+- `Application\AI\ConversationalAssistant`:
   - Orquestra conversas com o usuario
   - Mantém contexto da conversa
   - Resolve intencoes e despacha para use cases
-- `App\Application\AI\ActionOrchestrator`:
+- `Application\AI\ActionOrchestrator`:
   - Mapeia intencoes para acoes do sistema
   - Requer confirmacao humana para mutacoes
-- `App\Application\AI\ToolRegistry`:
+- `Application\AI\ToolRegistry`:
   - Registra ferramentas disponiveis (consultas, acoes)
   - Mapeia para use cases existentes:
     - "Quais horarios disponiveis?" -> `ListAvailableSlots`

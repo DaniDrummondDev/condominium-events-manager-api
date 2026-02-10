@@ -4,17 +4,24 @@
 
 A estrutura segue **Clean Architecture + DDD**, separando claramente Domain, Application, Infrastructure e Interface. A organização é **por contexto delimitado** (Bounded Context), não por tipo de arquivo.
 
+As camadas Domain e Application vivem em `src/` com namespaces próprios (`Domain\` e `Application\`), completamente desacopladas do Laravel. As camadas Infrastructure e Interface permanecem em `app/` sob o namespace `App\`.
+
 ---
 
 ## 2. Estrutura Raiz
 
 ```
 condominium-events-manage-api/
+├── src/
+│   ├── Domain/                    # Domain Layer (regras de negócio puras, zero Laravel)
+│   └── Application/               # Application Layer (use cases, DTOs, ports/interfaces)
+│
 ├── app/
-│   ├── Domain/                    # Domain Layer (regras de negócio puras)
-│   ├── Application/               # Application Layer (use cases, DTOs, interfaces)
-│   ├── Infrastructure/            # Infrastructure Layer (implementações)
-│   └── Interface/                 # Interface Layer (controllers, middleware, requests)
+│   ├── Infrastructure/            # Infrastructure Layer (implementações concretas)
+│   ├── Interface/                 # Interface Layer (controllers, middleware, requests)
+│   ├── Http/                      # Laravel default (mantido para compatibilidade)
+│   ├── Models/                    # Laravel default (mantido para compatibilidade)
+│   └── Providers/                 # Service Providers (bindings)
 │
 ├── config/                        # Configurações do Laravel
 ├── database/
@@ -44,10 +51,32 @@ condominium-events-manage-api/
 
 ---
 
-## 3. Domain Layer
+## 3. Mapeamento de Namespaces
+
+| Layer | Namespace | Diretório | PSR-4 (composer.json) |
+|-------|-----------|-----------|----------------------|
+| Domain | `Domain\` | `src/Domain/` | `"Domain\\": "src/Domain/"` |
+| Application | `Application\` | `src/Application/` | `"Application\\": "src/Application/"` |
+| Infrastructure | `App\Infrastructure\` | `app/Infrastructure/` | `"App\\": "app/"` |
+| Interface | `App\Interface\` | `app/Interface/` | `"App\\": "app/"` |
+
+### Regras de Dependência
 
 ```
-app/Domain/
+Domain\           → NÃO depende de nada externo (sem Illuminate\, sem App\, sem Application\)
+Application\      → Pode usar Domain\. NÃO pode usar App\, Illuminate\
+App\Infrastructure\ → Pode usar Domain\ e Application\
+App\Interface\    → Pode usar Application\. NÃO usa Domain\ diretamente
+```
+
+A separação física em `src/` torna impossível Domain ou Application importarem classes do Laravel acidentalmente. Isso é reforçado por testes arquiteturais com Pest.
+
+---
+
+## 4. Domain Layer
+
+```
+src/Domain/
 ├── Shared/                        # Tipos e contratos compartilhados
 │   ├── ValueObjects/
 │   │   ├── DateRange.php
@@ -165,10 +194,10 @@ app/Domain/
 
 ---
 
-## 4. Application Layer
+## 5. Application Layer
 
 ```
-app/Application/
+src/Application/
 ├── Shared/
 │   ├── Contracts/
 │   │   ├── EventDispatcherInterface.php
@@ -272,7 +301,7 @@ app/Application/
 
 ---
 
-## 5. Infrastructure Layer
+## 6. Infrastructure Layer
 
 ```
 app/Infrastructure/
@@ -344,7 +373,7 @@ app/Infrastructure/
 
 ---
 
-## 6. Interface Layer
+## 7. Interface Layer
 
 ```
 app/Interface/
@@ -397,7 +426,7 @@ app/Interface/
 
 ---
 
-## 7. Testes
+## 8. Testes
 
 ```
 tests/
@@ -435,11 +464,39 @@ tests/
 
 ---
 
-## 8. Convenções
+## 9. Referências Cross-Layer
+
+Infrastructure referencia Domain e Application via injeção de dependência:
+
+```
+App\Infrastructure\Persistence\Tenant\Repositories\EloquentReservationRepository
+  implements Application\Reservation\Contracts\ReservationRepositoryInterface
+  e trabalha com Domain\Reservation\Entities\Reservation
+
+App\Infrastructure\Events\LaravelEventDispatcher
+  implements Application\Shared\Contracts\EventDispatcherInterface
+```
+
+Service Providers em `app/Providers/` fazem o binding:
+
+```php
+// app/Providers/RepositoryServiceProvider.php
+$this->app->bind(
+    \Application\Reservation\Contracts\ReservationRepositoryInterface::class,
+    \App\Infrastructure\Persistence\Tenant\Repositories\EloquentReservationRepository::class
+);
+```
+
+---
+
+## 10. Convenções
 
 | Item | Convenção |
 |------|-----------|
-| Namespaces | `App\Domain\Reservation\Entities\Reservation` |
+| Namespaces (Domain) | `Domain\Reservation\Entities\Reservation` |
+| Namespaces (Application) | `Application\Reservation\UseCases\CreateReservation` |
+| Namespaces (Infrastructure) | `App\Infrastructure\Persistence\...` |
+| Namespaces (Interface) | `App\Interface\Http\Controllers\...` |
 | Use Cases | Uma classe por caso de uso, método `execute()` |
 | DTOs | Imutáveis, tipados, sem lógica |
 | Events | Nomeados no passado: `ReservationConfirmed` |
@@ -450,7 +507,7 @@ tests/
 
 ---
 
-## 9. Status
+## 11. Status
 
 Documento **ATIVO**. Define a organização física do código.
 
