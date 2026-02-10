@@ -6,7 +6,7 @@ API multi-tenant (SaaS B2B) para gestao de condominios, incluindo reservas de es
 
 | Componente | Tecnologia |
 |---|---|
-| Framework | Laravel 11 / PHP 8.4 |
+| Framework | Laravel 12 / PHP 8.4 |
 | Banco de dados | PostgreSQL 17 + pgvector |
 | Cache / Filas / Sessao | Redis 7 |
 | E-mail (dev) | Mailpit |
