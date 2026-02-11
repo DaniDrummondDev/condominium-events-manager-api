@@ -152,4 +152,19 @@ class TenantUser
 
         return (int) ceil(max(0, $remaining) / 60);
     }
+
+    public function activate(): void
+    {
+        $this->status = TenantUserStatus::Active;
+    }
+
+    public function deactivate(): void
+    {
+        $this->status = TenantUserStatus::Inactive;
+    }
+
+    public function changePassword(string $passwordHash): void
+    {
+        $this->passwordHash = $passwordHash;
+    }
 }

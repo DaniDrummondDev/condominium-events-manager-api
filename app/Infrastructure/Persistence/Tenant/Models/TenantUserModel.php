@@ -28,11 +28,14 @@ class TenantUserModel extends Model
         'failed_login_attempts',
         'locked_until',
         'last_login_at',
+        'invitation_token',
+        'invitation_expires_at',
     ];
 
     protected $hidden = [
         'password_hash',
         'mfa_secret',
+        'invitation_token',
     ];
 
     /**
@@ -45,6 +48,7 @@ class TenantUserModel extends Model
             'failed_login_attempts' => 'integer',
             'locked_until' => 'datetime',
             'last_login_at' => 'datetime',
+            'invitation_expires_at' => 'datetime',
         ];
     }
 }

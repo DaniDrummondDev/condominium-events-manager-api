@@ -28,6 +28,13 @@ class EloquentTenantUserRepository implements TenantUserRepositoryInterface
         return $model ? $this->toDomain($model) : null;
     }
 
+    public function findByInvitationToken(string $token): ?TenantUser
+    {
+        $model = TenantUserModel::query()->where('invitation_token', $token)->first();
+
+        return $model ? $this->toDomain($model) : null;
+    }
+
     public function save(TenantUser $user): void
     {
         TenantUserModel::query()->updateOrCreate(
@@ -46,6 +53,40 @@ class EloquentTenantUserRepository implements TenantUserRepositoryInterface
                 'last_login_at' => $user->lastLoginAt()?->format('Y-m-d H:i:s'),
             ],
         );
+    }
+
+    public function saveInvitationToken(Uuid $userId, string $token, DateTimeImmutable $expiresAt): void
+    {
+        TenantUserModel::query()
+            ->where('id', $userId->value())
+            ->update([
+                'invitation_token' => $token,
+                'invitation_expires_at' => $expiresAt->format('Y-m-d H:i:s'),
+            ]);
+    }
+
+    public function getInvitationExpiresAt(Uuid $userId): ?DateTimeImmutable
+    {
+        $model = TenantUserModel::query()->find($userId->value());
+
+        if ($model === null) {
+            return null;
+        }
+
+        /** @var string|null $expiresAtRaw */
+        $expiresAtRaw = $model->getRawOriginal('invitation_expires_at');
+
+        return $expiresAtRaw !== null ? new DateTimeImmutable($expiresAtRaw) : null;
+    }
+
+    public function clearInvitationToken(Uuid $userId): void
+    {
+        TenantUserModel::query()
+            ->where('id', $userId->value())
+            ->update([
+                'invitation_token' => null,
+                'invitation_expires_at' => null,
+            ]);
     }
 
     private function toDomain(TenantUserModel $model): TenantUser

@@ -1,0 +1,15 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Application\Governance\DTOs;
+
+final readonly class CreatePenaltyPolicyDTO
+{
+    public function __construct(
+        public string $violationType,
+        public int $occurrenceThreshold,
+        public string $penaltyType,
+        public ?int $blockDays,
+    ) {}
+}

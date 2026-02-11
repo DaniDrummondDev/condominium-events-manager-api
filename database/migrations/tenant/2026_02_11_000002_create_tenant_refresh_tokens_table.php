@@ -29,13 +29,16 @@ return new class extends Migration
                 ->on('tenant_users')
                 ->onDelete('cascade');
 
+            $table->index('user_id', 'idx_tenant_refresh_tokens_user_id');
+            $table->index('expires_at', 'idx_tenant_refresh_tokens_expires_at');
+        });
+
+        // Self-referencing FK must be added after table creation (PostgreSQL requirement)
+        Schema::connection($this->connection)->table('tenant_refresh_tokens', function (Blueprint $table) {
             $table->foreign('parent_id')
                 ->references('id')
                 ->on('tenant_refresh_tokens')
                 ->onDelete('set null');
-
-            $table->index('user_id', 'idx_tenant_refresh_tokens_user_id');
-            $table->index('expires_at', 'idx_tenant_refresh_tokens_expires_at');
         });
     }
 

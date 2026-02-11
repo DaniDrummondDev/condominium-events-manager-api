@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Application\Auth\Contracts;
 
+use DateTimeImmutable;
 use Domain\Auth\Entities\TenantUser;
 use Domain\Shared\ValueObjects\Uuid;
 
@@ -13,5 +14,13 @@ interface TenantUserRepositoryInterface
 
     public function findById(Uuid $id): ?TenantUser;
 
+    public function findByInvitationToken(string $token): ?TenantUser;
+
     public function save(TenantUser $user): void;
+
+    public function saveInvitationToken(Uuid $userId, string $token, DateTimeImmutable $expiresAt): void;
+
+    public function getInvitationExpiresAt(Uuid $userId): ?DateTimeImmutable;
+
+    public function clearInvitationToken(Uuid $userId): void;
 }

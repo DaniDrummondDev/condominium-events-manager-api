@@ -36,5 +36,9 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('auth-refresh', function (Request $request) {
             return Limit::perMinute(10)->by($request->ip() ?? 'unknown');
         });
+
+        RateLimiter::for('billing-webhook', function (Request $request) {
+            return Limit::perMinute(60)->by($request->ip() ?? 'unknown');
+        });
     }
 }

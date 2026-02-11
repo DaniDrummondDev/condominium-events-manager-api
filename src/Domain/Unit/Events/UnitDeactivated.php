@@ -1,0 +1,42 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Domain\Unit\Events;
+
+use DateTimeImmutable;
+use Domain\Shared\Events\DomainEvent;
+use Domain\Shared\ValueObjects\Uuid;
+
+final readonly class UnitDeactivated implements DomainEvent
+{
+    private DateTimeImmutable $occurredAt;
+
+    public function __construct(
+        public string $unitId,
+    ) {
+        $this->occurredAt = new DateTimeImmutable;
+    }
+
+    public function eventName(): string
+    {
+        return 'unit.deactivated';
+    }
+
+    public function aggregateId(): Uuid
+    {
+        return Uuid::fromString($this->unitId);
+    }
+
+    public function occurredAt(): DateTimeImmutable
+    {
+        return $this->occurredAt;
+    }
+
+    public function payload(): array
+    {
+        return [
+            'unit_id' => $this->unitId,
+        ];
+    }
+}

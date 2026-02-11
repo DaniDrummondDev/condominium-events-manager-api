@@ -6,6 +6,8 @@ Mapear areas da implementacao de IA que **ainda nao estao detalhadas** na docume
 
 Este documento cruza as 5 skills da fase 05-ai com os 7 documentos em `docs/ai/` e identifica gaps.
 
+> **Decisoes tomadas:** Todas as ~40 areas listadas neste documento foram analisadas e tiveram decisoes tecnicas definidas. Ver **[ai-uncovered-decisions.md](ai-uncovered-decisions.md)** para o documento consolidado de decisoes.
+
 ---
 
 ## Legenda
