@@ -1,5 +1,13 @@
 # Roadmap de Implementacao — Condominium Events Manager API
 
+## Status do Documento
+
+**Status:** Ativo\
+**Ultima atualizacao:** 2026-02-10\
+**Versao da API:** v1
+
+---
+
 ## 1. Principios de Priorizacao
 
 Este roadmap organiza a implementacao do **Condominium Events Manager API** respeitando quatro principios fundamentais:
@@ -31,8 +39,8 @@ Infraestrutura e fundacao (Fase 0)
 
 ## 2. Fase 0 — Setup do Projeto (Foundation)
 
-**Prioridade:** CRITICAL — bloqueia tudo
-**Dependencias:** Nenhuma
+**Prioridade:** CRITICAL — bloqueia tudo\
+**Dependencias:** Nenhuma\
 **Estimativa:** Base para todo o desenvolvimento
 
 ### 0.1 Inicializacao do Laravel
