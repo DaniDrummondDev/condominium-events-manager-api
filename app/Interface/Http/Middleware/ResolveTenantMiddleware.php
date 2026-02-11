@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Interface\Http\Middleware;
 
+use App\Infrastructure\Auth\AuthenticatedUser;
 use App\Infrastructure\MultiTenancy\TenantContext;
 use App\Infrastructure\MultiTenancy\TenantManager;
 use Closure;
@@ -50,8 +51,16 @@ class ResolveTenantMiddleware
 
     private function extractTenantId(Request $request): ?string
     {
-        // Por enquanto extrai do header X-Tenant-ID
-        // Na Fase 2 (Auth) sera extraido do JWT claim tenant_id
+        // Primary: extract from JWT claims (AuthenticatedUser bound by JwtAuthMiddleware)
+        if (app()->bound(AuthenticatedUser::class)) {
+            /** @var AuthenticatedUser $user */
+            $user = app(AuthenticatedUser::class);
+            if ($user->tenantId !== null) {
+                return $user->tenantId->value();
+            }
+        }
+
+        // Fallback: X-Tenant-ID header (for unauthenticated tenant routes like login)
         return $request->header('X-Tenant-ID');
     }
 }

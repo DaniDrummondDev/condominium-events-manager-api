@@ -25,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
+            'auth.jwt' => \App\Interface\Http\Middleware\JwtAuthMiddleware::class,
             'tenant.resolve' => \App\Interface\Http\Middleware\ResolveTenantMiddleware::class,
             'tenant.active' => \App\Interface\Http\Middleware\EnsureTenantActive::class,
         ]);

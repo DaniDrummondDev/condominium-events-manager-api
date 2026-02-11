@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,6 +24,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        $this->configureRateLimiting();
+    }
+
+    private function configureRateLimiting(): void
+    {
+        RateLimiter::for('auth-login', function (Request $request) {
+            return Limit::perMinute(5)->by($request->ip() ?? 'unknown');
+        });
+
+        RateLimiter::for('auth-refresh', function (Request $request) {
+            return Limit::perMinute(10)->by($request->ip() ?? 'unknown');
+        });
     }
 }

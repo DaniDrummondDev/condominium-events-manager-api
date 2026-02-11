@@ -2,24 +2,25 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Persistence\Platform\Models;
+namespace App\Infrastructure\Persistence\Tenant\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
-class PlatformUserModel extends Model
+class TenantUserModel extends Model
 {
     use HasUuids;
 
-    protected $connection = 'platform';
+    protected $connection = 'tenant';
 
-    protected $table = 'platform_users';
+    protected $table = 'tenant_users';
 
     protected $fillable = [
         'id',
-        'name',
         'email',
         'password_hash',
+        'name',
+        'phone',
         'role',
         'status',
         'mfa_secret',
