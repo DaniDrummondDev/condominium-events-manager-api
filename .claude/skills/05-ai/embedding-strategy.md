@@ -84,7 +84,7 @@ CREATE TABLE embeddings (
   tenant_id UUID NOT NULL,
   source_type VARCHAR(50) NOT NULL,
   source_id UUID NOT NULL,
-  embedding VECTOR(1536) NOT NULL,
+  embedding VECTOR NOT NULL,        -- Dimensão configurável (1536, 768, 1024...)
   model_version VARCHAR(50) NOT NULL,
   content_hash CHAR(64) NOT NULL,
   metadata JSONB,

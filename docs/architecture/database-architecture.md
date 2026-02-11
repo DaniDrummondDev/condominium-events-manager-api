@@ -1206,26 +1206,30 @@ Logs de auditoria do tenant. Tabela append-only.
 
 ### 3.24 ai_embeddings
 
-Embeddings vetoriais para funcionalidades de IA (requer pgvector).
+Embeddings vetoriais para funcionalidades de IA (requer pgvector). Dimensão do vetor é configurável via `AI_EMBEDDING_DIMENSIONS` para suportar estratégia híbrida local+cloud. Ver `docs/ai/ai-provider-strategy.md` seção 8.
 
 | Coluna | Tipo | Nullable | Default | Descrição |
 |--------|------|----------|---------|-----------|
 | `id` | `UUID` | NOT NULL | `gen_random_uuid()` | Identificador único |
 | `source_type` | `VARCHAR(100)` | NOT NULL | — | Tipo da origem (ex: "condominium_rule", "announcement") |
 | `source_id` | `UUID` | NOT NULL | — | ID do registro de origem |
-| `embedding` | `VECTOR(1536)` | NOT NULL | — | Vetor de embedding |
+| `chunk_index` | `INT` | NOT NULL | `0` | Posição do chunk no documento |
+| `content_text` | `TEXT` | NOT NULL | — | Texto original do chunk (para re-indexação) |
+| `embedding` | `VECTOR` | NOT NULL | — | Vetor de embedding (dimensão configurável: 768, 1024, 1536...) |
+| `model_version` | `VARCHAR(50)` | NOT NULL | — | Versão do modelo que gerou o embedding |
 | `content_hash` | `VARCHAR(64)` | NOT NULL | — | SHA-256 do conteúdo original |
-| `metadata` | `JSONB` | NULL | — | Metadados adicionais |
+| `metadata` | `JSONB` | NULL | — | Metadados adicionais (section, author, date, data_classification) |
 | `created_at` | `TIMESTAMP` | NOT NULL | `NOW()` | Data de criação |
-| `updated_at` | `TIMESTAMP` | NOT NULL | `NOW()` | Última atualização |
+| `expires_at` | `TIMESTAMP` | NULL | — | Expiração para dados com retenção definida |
 
 **Constraints:**
 - `PK`: `id`
-- `UNIQUE`: (`source_type`, `source_id`)
+- `UNIQUE`: (`source_type`, `source_id`, `chunk_index`, `model_version`)
 
 **Índices:**
-- `idx_ai_embeddings_source` UNIQUE ON (`source_type`, `source_id`)
+- `idx_ai_embeddings_source` ON (`source_type`, `source_id`)
 - `idx_ai_embeddings_vector` USING ivfflat (`embedding` vector_cosine_ops) WITH (lists = 100)
+- `idx_ai_embeddings_dedupe` UNIQUE ON (`content_hash`, `model_version`)
 
 ---
 
@@ -1443,11 +1447,14 @@ Chaves de idempotência para operações críticas.
 
 ### 5.3 pgvector — Índice de Embeddings
 
+A dimensão do vetor é configurável para suportar estratégia híbrida (cloud: 1536, local: 768/1024). Ver `docs/ai/ai-provider-strategy.md`.
+
 ```sql
 -- Criar extensão
 CREATE EXTENSION IF NOT EXISTS vector;
 
 -- Índice IVFFlat (recomendado para até 1M registros)
+-- Nota: funciona com vetores de qualquer dimensão
 CREATE INDEX idx_ai_embeddings_vector
 ON ai_embeddings USING ivfflat (embedding vector_cosine_ops)
 WITH (lists = 100);
