@@ -56,7 +56,7 @@ return [
 
         'stack' => [
             'driver' => 'stack',
-            'channels' => explode(',', (string) env('LOG_STACK', 'single')),
+            'channels' => explode(',', (string) env('LOG_STACK', 'json')),
             'ignore_exceptions' => false,
         ],
 
@@ -123,6 +123,13 @@ return [
         'null' => [
             'driver' => 'monolog',
             'handler' => NullHandler::class,
+        ],
+
+        'json' => [
+            'driver' => 'custom',
+            'via' => \App\Infrastructure\Logging\JsonLogChannel::class,
+            'path' => storage_path('logs/laravel.json'),
+            'level' => env('LOG_LEVEL', 'info'),
         ],
 
         'emergency' => [

@@ -27,12 +27,13 @@ use App\Interface\Http\Controllers\Tenant\SpaceController;
 use App\Interface\Http\Controllers\Tenant\SupportRequestController;
 use App\Interface\Http\Controllers\Tenant\UnitController;
 use App\Interface\Http\Controllers\AI\ConversationController;
+use App\Interface\Http\Controllers\Platform\HealthController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/health', fn () => response()->json([
-    'status' => 'ok',
-    'timestamp' => now()->toIso8601String(),
-]))->name('tenant.health');
+// Health checks (public, no auth)
+Route::get('/health', [HealthController::class, 'liveness'])->name('tenant.health');
+Route::get('/health/live', [HealthController::class, 'liveness'])->name('tenant.health.liveness');
+Route::get('/health/ready', [HealthController::class, 'readiness'])->name('tenant.health.readiness');
 
 // Auth routes (public — tenant resolved by slug in request body)
 Route::prefix('auth')->group(function () {
@@ -56,7 +57,7 @@ Route::post('/residents/activate', [ResidentController::class, 'activate'])
     ->name('tenant.residents.activate');
 
 // Authenticated tenant routes
-Route::middleware(['auth.jwt', 'tenant.resolve', 'tenant.active'])->group(function () {
+Route::middleware(['auth.jwt', 'tenant.resolve', 'tenant.active', 'throttle:tenant-api'])->group(function () {
     // Blocks
     Route::get('/blocks', [BlockController::class, 'index'])->name('tenant.blocks.index');
     Route::post('/blocks', [BlockController::class, 'store'])->name('tenant.blocks.store');
@@ -187,9 +188,11 @@ Route::middleware(['auth.jwt', 'tenant.resolve', 'tenant.active'])->group(functi
     Route::post('/support-requests/{id}/reopen', [SupportRequestController::class, 'reopen'])->name('tenant.support-requests.reopen');
 
     // AI Assistant
-    Route::post('/ai/chat', [ConversationController::class, 'chat'])->name('tenant.ai.chat');
-    Route::post('/ai/suggest', [ConversationController::class, 'suggest'])->name('tenant.ai.suggest');
-    Route::get('/ai/actions', [ConversationController::class, 'pendingActions'])->name('tenant.ai.actions');
-    Route::patch('/ai/actions/{id}/confirm', [ConversationController::class, 'confirmAction'])->name('tenant.ai.actions.confirm');
-    Route::patch('/ai/actions/{id}/reject', [ConversationController::class, 'rejectAction'])->name('tenant.ai.actions.reject');
+    Route::middleware('throttle:ai')->group(function () {
+        Route::post('/ai/chat', [ConversationController::class, 'chat'])->name('tenant.ai.chat');
+        Route::post('/ai/suggest', [ConversationController::class, 'suggest'])->name('tenant.ai.suggest');
+        Route::get('/ai/actions', [ConversationController::class, 'pendingActions'])->name('tenant.ai.actions');
+        Route::patch('/ai/actions/{id}/confirm', [ConversationController::class, 'confirmAction'])->name('tenant.ai.actions.confirm');
+        Route::patch('/ai/actions/{id}/reject', [ConversationController::class, 'rejectAction'])->name('tenant.ai.actions.reject');
+    });
 });

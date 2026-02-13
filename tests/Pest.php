@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 pest()->extend(Tests\TestCase::class)
  // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
-    ->in('Feature', 'Unit/Infrastructure', 'Unit/Application/AI');
+    ->in('Feature', 'Unit/Infrastructure', 'Unit/Interface', 'Unit/Application/AI');
 
 /*
 |--------------------------------------------------------------------------

@@ -20,13 +20,14 @@ use App\Interface\Http\Controllers\Platform\PlanController;
 use App\Interface\Http\Controllers\Platform\PlanVersionController;
 use App\Interface\Http\Controllers\Platform\SubscriptionController;
 use App\Interface\Http\Controllers\Platform\TenantFeatureOverrideController;
+use App\Interface\Http\Controllers\Platform\HealthController;
 use App\Interface\Http\Controllers\Webhook\BillingWebhookController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/health', fn () => response()->json([
-    'status' => 'ok',
-    'timestamp' => now()->toIso8601String(),
-]))->name('platform.health');
+// Health checks (public, no auth)
+Route::get('/health', [HealthController::class, 'liveness'])->name('platform.health');
+Route::get('/health/live', [HealthController::class, 'liveness'])->name('platform.health.liveness');
+Route::get('/health/ready', [HealthController::class, 'readiness'])->name('platform.health.readiness');
 
 // Auth routes (public)
 Route::prefix('auth')->group(function () {

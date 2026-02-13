@@ -27,6 +27,10 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->prepend(\App\Interface\Http\Middleware\CorrelationIdMiddleware::class);
+        $middleware->append(\App\Interface\Http\Middleware\SecurityHeadersMiddleware::class);
+        $middleware->append(\App\Interface\Http\Middleware\RequestLoggingMiddleware::class);
+
         $middleware->alias([
             'auth.jwt' => \App\Interface\Http\Middleware\JwtAuthMiddleware::class,
             'tenant.resolve' => \App\Interface\Http\Middleware\ResolveTenantMiddleware::class,
