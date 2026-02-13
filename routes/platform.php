@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 use App\Interface\Http\Controllers\Auth\MfaController;
 use App\Interface\Http\Controllers\Auth\PlatformAuthController;
+use App\Interface\Http\Controllers\Platform\DashboardController;
 use App\Interface\Http\Controllers\Platform\FeatureController;
 use App\Interface\Http\Controllers\Platform\InvoiceController;
 use App\Interface\Http\Controllers\Platform\PaymentController;
@@ -84,6 +85,13 @@ Route::middleware('auth.jwt')->group(function () {
     Route::get('/features', [FeatureController::class, 'index'])->name('platform.features.index');
     Route::post('/features', [FeatureController::class, 'store'])->name('platform.features.store');
     Route::get('/features/{id}', [FeatureController::class, 'show'])->name('platform.features.show');
+
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('platform.dashboard.index');
+
+    // Tenant Metrics
+    Route::get('/tenants/{id}/metrics', [DashboardController::class, 'tenantMetrics'])
+        ->name('platform.tenants.metrics');
 
     // Tenant Feature Overrides
     Route::get('/tenants/{tenantId}/features', [TenantFeatureOverrideController::class, 'index'])

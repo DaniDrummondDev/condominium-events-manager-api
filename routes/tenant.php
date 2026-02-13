@@ -15,11 +15,18 @@ use App\Interface\Http\Controllers\Tenant\BlockController;
 use App\Interface\Http\Controllers\Tenant\CondominiumRuleController;
 use App\Interface\Http\Controllers\Tenant\ContestationController;
 use App\Interface\Http\Controllers\Tenant\GovernanceController;
+use App\Interface\Http\Controllers\Tenant\AnnouncementController;
+use App\Interface\Http\Controllers\Tenant\DashboardController;
+use App\Interface\Http\Controllers\Tenant\GuestController;
 use App\Interface\Http\Controllers\Tenant\PenaltyPolicyController;
 use App\Interface\Http\Controllers\Tenant\ReservationController;
 use App\Interface\Http\Controllers\Tenant\ResidentController;
+use App\Interface\Http\Controllers\Tenant\ServiceProviderController;
+use App\Interface\Http\Controllers\Tenant\ServiceProviderVisitController;
 use App\Interface\Http\Controllers\Tenant\SpaceController;
+use App\Interface\Http\Controllers\Tenant\SupportRequestController;
 use App\Interface\Http\Controllers\Tenant\UnitController;
+use App\Interface\Http\Controllers\AI\ConversationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', fn () => response()->json([
@@ -138,4 +145,51 @@ Route::middleware(['auth.jwt', 'tenant.resolve', 'tenant.active'])->group(functi
     Route::get('/penalty-policies/{id}', [PenaltyPolicyController::class, 'show'])->name('tenant.penalty-policies.show');
     Route::put('/penalty-policies/{id}', [PenaltyPolicyController::class, 'update'])->name('tenant.penalty-policies.update');
     Route::delete('/penalty-policies/{id}', [PenaltyPolicyController::class, 'destroy'])->name('tenant.penalty-policies.destroy');
+
+    // Guests (nested under reservations)
+    Route::get('/reservations/{reservationId}/guests', [GuestController::class, 'index'])->name('tenant.guests.index');
+    Route::post('/reservations/{reservationId}/guests', [GuestController::class, 'store'])->name('tenant.guests.store');
+    Route::post('/guests/{id}/check-in', [GuestController::class, 'checkIn'])->name('tenant.guests.check-in');
+    Route::post('/guests/{id}/check-out', [GuestController::class, 'checkOut'])->name('tenant.guests.check-out');
+    Route::post('/guests/{id}/deny', [GuestController::class, 'deny'])->name('tenant.guests.deny');
+
+    // Service Providers
+    Route::get('/service-providers', [ServiceProviderController::class, 'index'])->name('tenant.service-providers.index');
+    Route::post('/service-providers', [ServiceProviderController::class, 'store'])->name('tenant.service-providers.store');
+    Route::get('/service-providers/{id}', [ServiceProviderController::class, 'show'])->name('tenant.service-providers.show');
+    Route::put('/service-providers/{id}', [ServiceProviderController::class, 'update'])->name('tenant.service-providers.update');
+
+    // Service Provider Visits
+    Route::get('/service-provider-visits', [ServiceProviderVisitController::class, 'index'])->name('tenant.service-provider-visits.index');
+    Route::post('/service-provider-visits', [ServiceProviderVisitController::class, 'store'])->name('tenant.service-provider-visits.store');
+    Route::get('/service-provider-visits/{id}', [ServiceProviderVisitController::class, 'show'])->name('tenant.service-provider-visits.show');
+    Route::post('/service-provider-visits/{id}/check-in', [ServiceProviderVisitController::class, 'checkIn'])->name('tenant.service-provider-visits.check-in');
+    Route::post('/service-provider-visits/{id}/check-out', [ServiceProviderVisitController::class, 'checkOut'])->name('tenant.service-provider-visits.check-out');
+
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'overview'])->name('tenant.dashboard.overview');
+    Route::get('/dashboard/resident', [DashboardController::class, 'resident'])->name('tenant.dashboard.resident');
+
+    // Announcements
+    Route::get('/announcements', [AnnouncementController::class, 'index'])->name('tenant.announcements.index');
+    Route::post('/announcements', [AnnouncementController::class, 'store'])->name('tenant.announcements.store');
+    Route::get('/announcements/{id}', [AnnouncementController::class, 'show'])->name('tenant.announcements.show');
+    Route::post('/announcements/{id}/archive', [AnnouncementController::class, 'archive'])->name('tenant.announcements.archive');
+    Route::post('/announcements/{id}/read', [AnnouncementController::class, 'markAsRead'])->name('tenant.announcements.read');
+
+    // Support Requests
+    Route::get('/support-requests', [SupportRequestController::class, 'index'])->name('tenant.support-requests.index');
+    Route::post('/support-requests', [SupportRequestController::class, 'store'])->name('tenant.support-requests.store');
+    Route::get('/support-requests/{id}', [SupportRequestController::class, 'show'])->name('tenant.support-requests.show');
+    Route::post('/support-requests/{id}/messages', [SupportRequestController::class, 'addMessage'])->name('tenant.support-requests.messages');
+    Route::post('/support-requests/{id}/resolve', [SupportRequestController::class, 'resolve'])->name('tenant.support-requests.resolve');
+    Route::post('/support-requests/{id}/close', [SupportRequestController::class, 'close'])->name('tenant.support-requests.close');
+    Route::post('/support-requests/{id}/reopen', [SupportRequestController::class, 'reopen'])->name('tenant.support-requests.reopen');
+
+    // AI Assistant
+    Route::post('/ai/chat', [ConversationController::class, 'chat'])->name('tenant.ai.chat');
+    Route::post('/ai/suggest', [ConversationController::class, 'suggest'])->name('tenant.ai.suggest');
+    Route::get('/ai/actions', [ConversationController::class, 'pendingActions'])->name('tenant.ai.actions');
+    Route::patch('/ai/actions/{id}/confirm', [ConversationController::class, 'confirmAction'])->name('tenant.ai.actions.confirm');
+    Route::patch('/ai/actions/{id}/reject', [ConversationController::class, 'rejectAction'])->name('tenant.ai.actions.reject');
 });

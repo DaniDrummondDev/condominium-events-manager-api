@@ -52,7 +52,8 @@
         "resident_id": "",
         "availability_id": "",
         "space_block_id": "",
-        "space_rule_id": ""
+        "space_rule_id": "",
+        "service_provider_visit_id": ""
       }
     },
     {
@@ -138,6 +139,12 @@
       "name": "Audit & Health",
       "parentId": "fld_platform"
     },
+    {
+      "_id": "fld_platform_dashboard",
+      "_type": "request_group",
+      "name": "Dashboard",
+      "parentId": "fld_platform"
+    },
 
     {
       "_id": "fld_tenant",
@@ -198,6 +205,30 @@
       "_type": "request_group",
       "name": "Gate Control (Portaria)",
       "parentId": "fld_tenant"
+    },
+    {
+      "_id": "fld_people",
+      "_type": "request_group",
+      "name": "People (Guests & Service Providers)",
+      "parentId": "fld_tenant"
+    },
+    {
+      "_id": "fld_guests",
+      "_type": "request_group",
+      "name": "Guests",
+      "parentId": "fld_people"
+    },
+    {
+      "_id": "fld_service_providers",
+      "_type": "request_group",
+      "name": "Service Providers",
+      "parentId": "fld_people"
+    },
+    {
+      "_id": "fld_service_provider_visits",
+      "_type": "request_group",
+      "name": "Service Provider Visits",
+      "parentId": "fld_people"
     },
     {
       "_id": "fld_settings",
@@ -992,6 +1023,21 @@
       "headers": [{ "name": "Accept", "value": "application/json" }],
       "body": {},
       "parentId": "fld_audit"
+    },
+
+
+    {
+      "_id": "req_platform_dashboard",
+      "_type": "request",
+      "name": "Platform Dashboard",
+      "method": "GET",
+      "url": "{{ _.base_url }}/platform/dashboard",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.platform_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_platform_dashboard"
     },
 
 
@@ -2113,10 +2159,6 @@
         { "name": "Accept", "value": "application/json" },
         { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
       ],
-      "parameters": [
-        { "name": "priority", "value": "", "disabled": true },
-        { "name": "audience_type", "value": "", "disabled": true }
-      ],
       "body": {},
       "parentId": "fld_communication"
     },
@@ -2138,11 +2180,11 @@
       "parentId": "fld_communication"
     },
     {
-      "_id": "req_mark_read",
+      "_id": "req_get_announcement",
       "_type": "request",
-      "name": "Mark Announcement as Read",
-      "method": "POST",
-      "url": "{{ _.base_url }}/tenant/announcements/{{ _.announcement_id }}/read",
+      "name": "Get Announcement",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/announcements/{{ _.announcement_id }}",
       "headers": [
         { "name": "Accept", "value": "application/json" },
         { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
@@ -2151,11 +2193,24 @@
       "parentId": "fld_communication"
     },
     {
-      "_id": "req_announcement_reads",
+      "_id": "req_archive_announcement",
       "_type": "request",
-      "name": "Announcement Read Status",
-      "method": "GET",
-      "url": "{{ _.base_url }}/tenant/announcements/{{ _.announcement_id }}/reads",
+      "name": "Archive Announcement",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/announcements/{{ _.announcement_id }}/archive",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_communication"
+    },
+    {
+      "_id": "req_mark_read",
+      "_type": "request",
+      "name": "Mark Announcement as Read",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/announcements/{{ _.announcement_id }}/read",
       "headers": [
         { "name": "Accept", "value": "application/json" },
         { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
@@ -2172,10 +2227,6 @@
       "headers": [
         { "name": "Accept", "value": "application/json" },
         { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
-      ],
-      "parameters": [
-        { "name": "status", "value": "", "disabled": true },
-        { "name": "category", "value": "", "disabled": true }
       ],
       "body": {},
       "parentId": "fld_communication"
@@ -2200,39 +2251,9 @@
     {
       "_id": "req_get_support",
       "_type": "request",
-      "name": "Get Support Request",
+      "name": "Get Support Request (with messages)",
       "method": "GET",
       "url": "{{ _.base_url }}/tenant/support-requests/{{ _.support_request_id }}",
-      "headers": [
-        { "name": "Accept", "value": "application/json" },
-        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
-      ],
-      "body": {},
-      "parentId": "fld_communication"
-    },
-    {
-      "_id": "req_change_support_status",
-      "_type": "request",
-      "name": "Change Support Status",
-      "method": "PATCH",
-      "url": "{{ _.base_url }}/tenant/support-requests/{{ _.support_request_id }}/status",
-      "headers": [
-        { "name": "Content-Type", "value": "application/json" },
-        { "name": "Accept", "value": "application/json" },
-        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
-      ],
-      "body": {
-        "mimeType": "application/json",
-        "text": "{\n  \"status\": \"in_progress\"\n}"
-      },
-      "parentId": "fld_communication"
-    },
-    {
-      "_id": "req_list_messages",
-      "_type": "request",
-      "name": "List Support Messages",
-      "method": "GET",
-      "url": "{{ _.base_url }}/tenant/support-requests/{{ _.support_request_id }}/messages",
       "headers": [
         { "name": "Accept", "value": "application/json" },
         { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
@@ -2255,6 +2276,49 @@
         "mimeType": "application/json",
         "text": "{\n  \"body\": \"Texto da mensagem...\",\n  \"is_internal\": false\n}"
       },
+      "parentId": "fld_communication"
+    },
+    {
+      "_id": "req_resolve_support",
+      "_type": "request",
+      "name": "Resolve Support Request",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/support-requests/{{ _.support_request_id }}/resolve",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_communication"
+    },
+    {
+      "_id": "req_close_support",
+      "_type": "request",
+      "name": "Close Support Request",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/support-requests/{{ _.support_request_id }}/close",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"reason\": \"admin_closed\"\n}"
+      },
+      "parentId": "fld_communication"
+    },
+    {
+      "_id": "req_reopen_support",
+      "_type": "request",
+      "name": "Reopen Support Request",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/support-requests/{{ _.support_request_id }}/reopen",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
       "parentId": "fld_communication"
     },
 
@@ -2322,6 +2386,212 @@
 
 
     {
+      "_id": "req_list_guests",
+      "_type": "request",
+      "name": "List Guests by Reservation",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/reservations/{{ _.reservation_id }}/guests",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_guests"
+    },
+    {
+      "_id": "req_register_guest",
+      "_type": "request",
+      "name": "Register Guest",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/reservations/{{ _.reservation_id }}/guests",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"João Silva\",\n  \"document\": \"12345678900\",\n  \"phone\": \"11999999999\",\n  \"vehicle_plate\": \"ABC1234\",\n  \"relationship\": \"Amigo\"\n}"
+      },
+      "parentId": "fld_guests"
+    },
+    {
+      "_id": "req_guest_checkin",
+      "_type": "request",
+      "name": "Guest Check-in",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/guests/{{ _.guest_id }}/check-in",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_guests"
+    },
+    {
+      "_id": "req_guest_checkout",
+      "_type": "request",
+      "name": "Guest Check-out",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/guests/{{ _.guest_id }}/check-out",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_guests"
+    },
+    {
+      "_id": "req_guest_deny",
+      "_type": "request",
+      "name": "Deny Guest Access",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/guests/{{ _.guest_id }}/deny",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"reason\": \"Documento inválido\"\n}"
+      },
+      "parentId": "fld_guests"
+    },
+
+    {
+      "_id": "req_list_service_providers",
+      "_type": "request",
+      "name": "List Service Providers",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/service-providers",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_service_providers"
+    },
+    {
+      "_id": "req_register_service_provider",
+      "_type": "request",
+      "name": "Register Service Provider",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/service-providers",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"company_name\": \"Buffet Gourmet Ltda\",\n  \"name\": \"Carlos Souza\",\n  \"document\": \"12345678000199\",\n  \"phone\": \"11999999999\",\n  \"service_type\": \"buffet\",\n  \"notes\": \"Contrato anual\"\n}"
+      },
+      "parentId": "fld_service_providers"
+    },
+    {
+      "_id": "req_show_service_provider",
+      "_type": "request",
+      "name": "Show Service Provider",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/service-providers/{{ _.service_provider_id }}",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_service_providers"
+    },
+    {
+      "_id": "req_update_service_provider",
+      "_type": "request",
+      "name": "Update Service Provider",
+      "method": "PUT",
+      "url": "{{ _.base_url }}/tenant/service-providers/{{ _.service_provider_id }}",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"company_name\": \"Buffet Premium Ltda\",\n  \"name\": \"Carlos Souza\",\n  \"phone\": \"11888888888\",\n  \"service_type\": \"buffet\",\n  \"notes\": \"Contrato renovado\"\n}"
+      },
+      "parentId": "fld_service_providers"
+    },
+
+    {
+      "_id": "req_list_visits",
+      "_type": "request",
+      "name": "List Service Provider Visits",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/service-provider-visits",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_service_provider_visits"
+    },
+    {
+      "_id": "req_schedule_visit",
+      "_type": "request",
+      "name": "Schedule Visit",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/service-provider-visits",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"service_provider_id\": \"{{ _.service_provider_id }}\",\n  \"unit_id\": \"{{ _.unit_id }}\",\n  \"scheduled_date\": \"2026-03-20\",\n  \"purpose\": \"Manutenção do elevador\",\n  \"notes\": \"Chegar às 8h\"\n}"
+      },
+      "parentId": "fld_service_provider_visits"
+    },
+    {
+      "_id": "req_show_visit",
+      "_type": "request",
+      "name": "Show Visit",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tenant/service-provider-visits/{{ _.service_provider_visit_id }}",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_service_provider_visits"
+    },
+    {
+      "_id": "req_visit_checkin",
+      "_type": "request",
+      "name": "Visit Check-in",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/service-provider-visits/{{ _.service_provider_visit_id }}/check-in",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_service_provider_visits"
+    },
+    {
+      "_id": "req_visit_checkout",
+      "_type": "request",
+      "name": "Visit Check-out",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tenant/service-provider-visits/{{ _.service_provider_visit_id }}/check-out",
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
+      ],
+      "body": {},
+      "parentId": "fld_service_provider_visits"
+    },
+
+
+    {
       "_id": "req_get_settings",
       "_type": "request",
       "name": "Get Settings",
@@ -2369,9 +2639,9 @@
     {
       "_id": "req_dashboard_overview",
       "_type": "request",
-      "name": "Dashboard Overview",
+      "name": "Admin Dashboard",
       "method": "GET",
-      "url": "{{ _.base_url }}/tenant/dashboard/overview",
+      "url": "{{ _.base_url }}/tenant/dashboard",
       "headers": [
         { "name": "Accept", "value": "application/json" },
         { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
@@ -2380,47 +2650,14 @@
       "parentId": "fld_dashboard"
     },
     {
-      "_id": "req_dashboard_reservations",
+      "_id": "req_dashboard_resident",
       "_type": "request",
-      "name": "Reservation Stats",
+      "name": "Resident Dashboard",
       "method": "GET",
-      "url": "{{ _.base_url }}/tenant/dashboard/reservations",
+      "url": "{{ _.base_url }}/tenant/dashboard/resident",
       "headers": [
         { "name": "Accept", "value": "application/json" },
         { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
-      ],
-      "parameters": [
-        { "name": "period", "value": "30d" }
-      ],
-      "body": {},
-      "parentId": "fld_dashboard"
-    },
-    {
-      "_id": "req_dashboard_governance",
-      "_type": "request",
-      "name": "Governance Stats",
-      "method": "GET",
-      "url": "{{ _.base_url }}/tenant/dashboard/governance",
-      "headers": [
-        { "name": "Accept", "value": "application/json" },
-        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
-      ],
-      "body": {},
-      "parentId": "fld_dashboard"
-    },
-    {
-      "_id": "req_dashboard_occupancy",
-      "_type": "request",
-      "name": "Space Occupancy",
-      "method": "GET",
-      "url": "{{ _.base_url }}/tenant/dashboard/occupancy",
-      "headers": [
-        { "name": "Accept", "value": "application/json" },
-        { "name": "Authorization", "value": "Bearer {{ _.tenant_access_token }}" }
-      ],
-      "parameters": [
-        { "name": "period", "value": "30d" },
-        { "name": "space_id", "value": "", "disabled": true }
       ],
       "body": {},
       "parentId": "fld_dashboard"
