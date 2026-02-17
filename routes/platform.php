@@ -21,7 +21,9 @@ use App\Interface\Http\Controllers\Platform\PlanVersionController;
 use App\Interface\Http\Controllers\Platform\SubscriptionController;
 use App\Interface\Http\Controllers\Platform\TenantFeatureOverrideController;
 use App\Interface\Http\Controllers\Platform\HealthController;
+use App\Interface\Http\Controllers\Platform\NFSeController;
 use App\Interface\Http\Controllers\Webhook\BillingWebhookController;
+use App\Interface\Http\Controllers\Webhook\FiscalWebhookController;
 use Illuminate\Support\Facades\Route;
 
 // Health checks (public, no auth)
@@ -101,9 +103,20 @@ Route::middleware('auth.jwt')->group(function () {
         ->name('platform.tenants.features.store');
     Route::delete('/tenants/{tenantId}/features/{overrideId}', [TenantFeatureOverrideController::class, 'destroy'])
         ->name('platform.tenants.features.destroy');
+
+    // NFSe (Fiscal Documents)
+    Route::get('/nfse', [NFSeController::class, 'index'])->name('platform.nfse.index');
+    Route::get('/nfse/{id}', [NFSeController::class, 'show'])->name('platform.nfse.show');
+    Route::post('/nfse/{id}/cancel', [NFSeController::class, 'cancel'])->name('platform.nfse.cancel');
+    Route::post('/nfse/{id}/retry', [NFSeController::class, 'retry'])->name('platform.nfse.retry');
+    Route::get('/nfse/{id}/pdf', [NFSeController::class, 'pdf'])->name('platform.nfse.pdf');
 });
 
 // Webhook (no JWT — validated via signature)
 Route::post('/webhooks/billing', [BillingWebhookController::class, 'handle'])
     ->middleware('throttle:billing-webhook')
     ->name('platform.webhooks.billing');
+
+Route::post('/webhooks/fiscal', [FiscalWebhookController::class, 'handle'])
+    ->middleware('throttle:billing-webhook')
+    ->name('platform.webhooks.fiscal');

@@ -7,6 +7,7 @@ return [
     App\Providers\BillingServiceProvider::class,
     App\Providers\CommunicationServiceProvider::class,
     App\Providers\DashboardServiceProvider::class,
+    App\Providers\FiscalServiceProvider::class,
     App\Providers\GovernanceServiceProvider::class,
     App\Providers\HorizonServiceProvider::class,
     App\Providers\PeopleServiceProvider::class,

@@ -53,7 +53,8 @@
         "availability_id": "",
         "space_block_id": "",
         "space_rule_id": "",
-        "service_provider_visit_id": ""
+        "service_provider_visit_id": "",
+        "nfse_id": ""
       }
     },
     {
@@ -831,6 +832,140 @@
       "body": {
         "mimeType": "application/json",
         "text": "{\n  \"gateway\": \"stripe\",\n  \"event_type\": \"payment_intent.succeeded\",\n  \"gateway_transaction_id\": \"pi_abc123\",\n  \"status\": \"paid\",\n  \"amount\": 29990,\n  \"metadata\": {\n    \"invoice_id\": \"{{ _.invoice_id }}\"\n  }\n}"
+      },
+      "parentId": "fld_webhooks"
+    },
+    {
+      "_id": "fld_nfse",
+      "_type": "request_group",
+      "name": "NFSe (Fiscal Documents)",
+      "parentId": "fld_platform"
+    },
+    {
+      "_id": "req_list_nfse",
+      "_type": "request",
+      "name": "List NFSe",
+      "method": "GET",
+      "url": "{{ _.base_url }}/platform/nfse?tenant_id={{ _.tenant_id }}",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.platform_access_token }}"
+        }
+      ],
+      "body": {},
+      "parentId": "fld_nfse"
+    },
+    {
+      "_id": "req_get_nfse",
+      "_type": "request",
+      "name": "Get NFSe",
+      "method": "GET",
+      "url": "{{ _.base_url }}/platform/nfse/{{ _.nfse_id }}",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.platform_access_token }}"
+        }
+      ],
+      "body": {},
+      "parentId": "fld_nfse"
+    },
+    {
+      "_id": "req_cancel_nfse",
+      "_type": "request",
+      "name": "Cancel NFSe",
+      "method": "POST",
+      "url": "{{ _.base_url }}/platform/nfse/{{ _.nfse_id }}/cancel",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.platform_access_token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"reason\": \"Cancelamento solicitado pelo administrador da plataforma\"\n}"
+      },
+      "parentId": "fld_nfse"
+    },
+    {
+      "_id": "req_retry_nfse",
+      "_type": "request",
+      "name": "Retry NFSe",
+      "method": "POST",
+      "url": "{{ _.base_url }}/platform/nfse/{{ _.nfse_id }}/retry",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.platform_access_token }}"
+        }
+      ],
+      "body": {},
+      "parentId": "fld_nfse"
+    },
+    {
+      "_id": "req_nfse_pdf",
+      "_type": "request",
+      "name": "Get NFSe PDF",
+      "method": "GET",
+      "url": "{{ _.base_url }}/platform/nfse/{{ _.nfse_id }}/pdf",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.platform_access_token }}"
+        }
+      ],
+      "body": {},
+      "parentId": "fld_nfse"
+    },
+    {
+      "_id": "req_fiscal_webhook",
+      "_type": "request",
+      "name": "Fiscal Webhook (NFSe)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/platform/webhooks/fiscal",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "X-Webhook-Signature",
+          "value": "valid_signature"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ref\": \"{{ _.nfse_id }}\",\n  \"status\": \"autorizada\",\n  \"numero\": \"NFSe-000001\",\n  \"codigo_verificacao\": \"VERIFY-ABC123\",\n  \"url\": \"https://focusnfe.com.br/nfse/example.pdf\"\n}"
       },
       "parentId": "fld_webhooks"
     },
