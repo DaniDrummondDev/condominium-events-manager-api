@@ -8,9 +8,7 @@ use App\Infrastructure\Persistence\Platform\Models\PlanVersionModel;
 use Application\Billing\Contracts\PlanVersionRepositoryInterface;
 use DateTimeImmutable;
 use Domain\Billing\Entities\PlanVersion;
-use Domain\Billing\Enums\BillingCycle;
 use Domain\Billing\Enums\PlanStatus;
-use Domain\Shared\ValueObjects\Money;
 use Domain\Shared\ValueObjects\Uuid;
 
 class EloquentPlanVersionRepository implements PlanVersionRepositoryInterface
@@ -59,10 +57,6 @@ class EloquentPlanVersionRepository implements PlanVersionRepositoryInterface
             [
                 'plan_id' => $planVersion->planId()->value(),
                 'version' => $planVersion->version(),
-                'price' => $planVersion->price()->amount() / 100,
-                'currency' => $planVersion->price()->currency(),
-                'billing_cycle' => $planVersion->billingCycle()->value,
-                'trial_days' => $planVersion->trialDays(),
                 'status' => $planVersion->status()->value,
                 'created_at' => $planVersion->createdAt(),
             ],
@@ -75,9 +69,6 @@ class EloquentPlanVersionRepository implements PlanVersionRepositoryInterface
             id: Uuid::fromString($model->id),
             planId: Uuid::fromString($model->plan_id),
             version: (int) $model->version,
-            price: new Money((int) round((float) $model->price * 100), $model->currency),
-            billingCycle: BillingCycle::from($model->billing_cycle),
-            trialDays: (int) $model->trial_days,
             status: PlanStatus::from($model->status),
             createdAt: new DateTimeImmutable((string) $model->created_at),
         );

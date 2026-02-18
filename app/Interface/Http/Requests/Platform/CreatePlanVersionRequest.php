@@ -14,10 +14,11 @@ class CreatePlanVersionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'price' => ['required', 'integer', 'min:0'],
-            'currency' => ['sometimes', 'string', 'size:3'],
-            'billing_cycle' => ['required', 'string', 'in:monthly,yearly'],
-            'trial_days' => ['sometimes', 'integer', 'min:0'],
+            'prices' => ['required', 'array', 'min:1'],
+            'prices.*.billing_cycle' => ['required', 'string', 'in:monthly,semiannual,yearly'],
+            'prices.*.price' => ['required', 'integer', 'min:0'],
+            'prices.*.currency' => ['sometimes', 'string', 'size:3'],
+            'prices.*.trial_days' => ['sometimes', 'integer', 'min:0'],
             'features' => ['sometimes', 'array'],
             'features.*.key' => ['required_with:features', 'string', 'max:100'],
             'features.*.value' => ['required_with:features', 'string', 'max:255'],

@@ -12,6 +12,7 @@ use App\Infrastructure\Persistence\Platform\Repositories\EloquentGatewayEventRep
 use App\Infrastructure\Persistence\Platform\Repositories\EloquentInvoiceRepository;
 use App\Infrastructure\Persistence\Platform\Repositories\EloquentPaymentRepository;
 use App\Infrastructure\Persistence\Platform\Repositories\EloquentPlanFeatureRepository;
+use App\Infrastructure\Persistence\Platform\Repositories\EloquentPlanPriceRepository;
 use App\Infrastructure\Persistence\Platform\Repositories\EloquentPlanRepository;
 use App\Infrastructure\Persistence\Platform\Repositories\EloquentPlanVersionRepository;
 use App\Infrastructure\Persistence\Platform\Repositories\EloquentSubscriptionRepository;
@@ -27,6 +28,7 @@ use Application\Billing\Contracts\InvoiceRepositoryInterface;
 use Application\Billing\Contracts\PaymentGatewayInterface;
 use Application\Billing\Contracts\PaymentRepositoryInterface;
 use Application\Billing\Contracts\PlanFeatureRepositoryInterface;
+use Application\Billing\Contracts\PlanPriceRepositoryInterface;
 use Application\Billing\Contracts\PlanRepositoryInterface;
 use Application\Billing\Contracts\PlanVersionRepositoryInterface;
 use Application\Billing\Contracts\SubscriptionRepositoryInterface;
@@ -42,6 +44,7 @@ class BillingServiceProvider extends ServiceProvider
         $this->app->bind(PlanVersionRepositoryInterface::class, EloquentPlanVersionRepository::class);
         $this->app->bind(FeatureRepositoryInterface::class, EloquentFeatureRepository::class);
         $this->app->bind(PlanFeatureRepositoryInterface::class, EloquentPlanFeatureRepository::class);
+        $this->app->bind(PlanPriceRepositoryInterface::class, EloquentPlanPriceRepository::class);
         $this->app->bind(SubscriptionRepositoryInterface::class, EloquentSubscriptionRepository::class);
         $this->app->bind(InvoiceRepositoryInterface::class, EloquentInvoiceRepository::class);
         $this->app->bind(PaymentRepositoryInterface::class, EloquentPaymentRepository::class);

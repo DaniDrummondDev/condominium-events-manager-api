@@ -170,37 +170,55 @@ Planos comerciais disponíveis na plataforma.
 
 ### 2.5 plan_versions
 
-Versão específica de um plano com preço e ciclo de cobrança.
+Versão específica de um plano. Cada versão pode ter N preços (um por ciclo de cobrança), definidos na tabela `plan_prices`.
 
 | Coluna | Tipo | Nullable | Default | Descrição |
 |--------|------|----------|---------|-----------|
 | `id` | `UUID` | NOT NULL | `gen_random_uuid()` | Identificador único |
 | `plan_id` | `UUID` | NOT NULL | — | FK para plans |
 | `version` | `INTEGER` | NOT NULL | — | Número sequencial |
-| `price` | `DECIMAL(10,2)` | NOT NULL | — | Preço do plano |
-| `currency` | `VARCHAR(3)` | NOT NULL | `'BRL'` | Moeda ISO 4217 |
-| `billing_cycle` | `VARCHAR(10)` | NOT NULL | — | `monthly`, `yearly` |
-| `trial_days` | `INTEGER` | NOT NULL | `0` | Dias de trial |
 | `status` | `VARCHAR(20)` | NOT NULL | `'active'` | Estado da versão |
 | `created_at` | `TIMESTAMP` | NOT NULL | `NOW()` | Data de criação |
 
 **Constraints:**
 - `PK`: `id`
 - `FK`: `plan_id` → `plans(id)` ON DELETE RESTRICT
-- `UNIQUE`: (`plan_id`, `billing_cycle`) WHERE `status = 'active'` (partial unique)
-- `CHECK`: `billing_cycle IN ('monthly', 'yearly')`
 - `CHECK`: `status IN ('active', 'deprecated')`
-- `CHECK`: `price >= 0`
-- `CHECK`: `trial_days >= 0`
 
 **Índices:**
 - `idx_plan_versions_plan` ON (`plan_id`)
 - `idx_plan_versions_status` ON (`status`)
-- `idx_plan_versions_active` UNIQUE ON (`plan_id`, `billing_cycle`) WHERE `status = 'active'`
 
 ---
 
-### 2.6 plan_features
+### 2.6 plan_prices
+
+Preços associados a uma versão de plano, permitindo múltiplos ciclos de cobrança por versão.
+
+| Coluna | Tipo | Nullable | Default | Descrição |
+|--------|------|----------|---------|-----------|
+| `id` | `UUID` | NOT NULL | `gen_random_uuid()` | Identificador único |
+| `plan_version_id` | `UUID` | NOT NULL | — | FK para plan_versions |
+| `billing_cycle` | `VARCHAR(20)` | NOT NULL | — | `monthly`, `semiannual`, `yearly` |
+| `price` | `DECIMAL(10,2)` | NOT NULL | — | Preço do plano |
+| `currency` | `VARCHAR(3)` | NOT NULL | `'BRL'` | Moeda ISO 4217 |
+| `trial_days` | `INTEGER UNSIGNED` | NOT NULL | `0` | Dias de trial |
+
+**Constraints:**
+- `PK`: `id`
+- `FK`: `plan_version_id` → `plan_versions(id)` ON DELETE CASCADE
+- `UNIQUE`: (`plan_version_id`, `billing_cycle`)
+- `CHECK`: `billing_cycle IN ('monthly', 'semiannual', 'yearly')`
+- `CHECK`: `price >= 0`
+- `CHECK`: `trial_days >= 0`
+
+**Índices:**
+- `idx_plan_prices_plan_version` ON (`plan_version_id`)
+- `idx_plan_prices_unique` UNIQUE ON (`plan_version_id`, `billing_cycle`)
+
+---
+
+### 2.8 plan_features
 
 Features associadas a uma versão de plano.
 
@@ -224,7 +242,7 @@ Features associadas a uma versão de plano.
 
 ---
 
-### 2.7 features
+### 2.9 features
 
 Catálogo global de features configuráveis da plataforma.
 
@@ -248,7 +266,7 @@ Catálogo global de features configuráveis da plataforma.
 
 ---
 
-### 2.8 tenant_feature_overrides
+### 2.10 tenant_feature_overrides
 
 Override de feature para um tenant específico.
 
@@ -277,7 +295,7 @@ Override de feature para um tenant específico.
 
 ---
 
-### 2.9 subscriptions
+### 2.11 subscriptions
 
 Vínculo entre tenant e plano. Controla acesso ao sistema.
 
@@ -310,7 +328,7 @@ Vínculo entre tenant e plano. Controla acesso ao sistema.
 
 ---
 
-### 2.10 invoices
+### 2.12 invoices
 
 Faturas geradas por ciclo de assinatura.
 
@@ -348,7 +366,7 @@ Faturas geradas por ciclo de assinatura.
 
 ---
 
-### 2.11 invoice_items
+### 2.13 invoice_items
 
 Itens detalhados de cada fatura.
 
@@ -372,7 +390,7 @@ Itens detalhados de cada fatura.
 
 ---
 
-### 2.12 payments
+### 2.14 payments
 
 Pagamentos recebidos via gateway.
 
@@ -404,7 +422,7 @@ Pagamentos recebidos via gateway.
 
 ---
 
-### 2.13 dunning_policies
+### 2.15 dunning_policies
 
 Políticas de tratamento de inadimplência.
 
@@ -431,7 +449,7 @@ Políticas de tratamento de inadimplência.
 
 ---
 
-### 2.14 gateway_events
+### 2.16 gateway_events
 
 Eventos recebidos via webhooks do gateway de pagamento.
 
@@ -460,7 +478,7 @@ Eventos recebidos via webhooks do gateway de pagamento.
 
 ---
 
-### 2.15 platform_audit_logs
+### 2.17 platform_audit_logs
 
 Logs de auditoria da plataforma. Tabela append-only.
 
@@ -1641,23 +1659,24 @@ class FakeEmbeddingSearch implements EmbeddingSearchInterface
 
 ## 11. Contagem de Tabelas
 
-### 11.1 Banco da Plataforma: 15 tabelas
+### 11.1 Banco da Plataforma: 16 tabelas
 
 1. tenants
 2. platform_users
 3. tenant_admin_actions
 4. plans
 5. plan_versions
-6. plan_features
-7. features
-8. tenant_feature_overrides
-9. subscriptions
-10. invoices
-11. invoice_items
-12. payments
-13. dunning_policies
-14. gateway_events
-15. platform_audit_logs
+6. plan_prices
+7. plan_features
+8. features
+9. tenant_feature_overrides
+10. subscriptions
+11. invoices
+12. invoice_items
+13. payments
+14. dunning_policies
+15. gateway_events
+16. platform_audit_logs
 
 ### 11.2 Banco do Tenant: 27 tabelas
 
@@ -1689,7 +1708,7 @@ class FakeEmbeddingSearch implements EmbeddingSearchInterface
 26. ai_action_logs
 27. idempotency_keys
 
-**Total: 42 tabelas** (15 plataforma + 27 tenant)
+**Total: 43 tabelas** (16 plataforma + 27 tenant)
 
 ---
 

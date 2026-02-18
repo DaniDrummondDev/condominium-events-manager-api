@@ -23,10 +23,6 @@ class PlanVersionModel extends Model
         'id',
         'plan_id',
         'version',
-        'price',
-        'currency',
-        'billing_cycle',
-        'trial_days',
         'status',
         'created_at',
     ];
@@ -38,7 +34,6 @@ class PlanVersionModel extends Model
     {
         return [
             'version' => 'integer',
-            'trial_days' => 'integer',
             'created_at' => 'datetime',
         ];
     }
@@ -57,5 +52,13 @@ class PlanVersionModel extends Model
     public function features(): HasMany
     {
         return $this->hasMany(PlanFeatureModel::class, 'plan_version_id');
+    }
+
+    /**
+     * @return HasMany<PlanPriceModel, $this>
+     */
+    public function prices(): HasMany
+    {
+        return $this->hasMany(PlanPriceModel::class, 'plan_version_id');
     }
 }

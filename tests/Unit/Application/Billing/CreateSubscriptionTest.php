@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use Application\Billing\Contracts\PlanPriceRepositoryInterface;
 use Application\Billing\Contracts\PlanVersionRepositoryInterface;
 use Application\Billing\Contracts\SubscriptionRepositoryInterface;
 use Application\Billing\DTOs\CreateSubscriptionDTO;
 use Application\Billing\DTOs\SubscriptionDTO;
 use Application\Billing\UseCases\CreateSubscription;
+use Domain\Billing\Entities\PlanPrice;
 use Domain\Billing\Entities\PlanVersion;
 use Domain\Billing\Entities\Subscription;
 use Domain\Billing\Enums\BillingCycle;
@@ -19,17 +21,27 @@ use Domain\Shared\ValueObjects\Uuid;
 
 function createActivePlanVersion(
     ?Uuid $id = null,
-    int $trialDays = 0,
 ): PlanVersion {
     return new PlanVersion(
         id: $id ?? Uuid::generate(),
         planId: Uuid::generate(),
         version: 1,
-        price: new Money(9900, 'BRL'),
-        billingCycle: BillingCycle::Monthly,
-        trialDays: $trialDays,
         status: PlanStatus::Active,
         createdAt: new DateTimeImmutable,
+    );
+}
+
+function createActivePlanPrice(
+    Uuid $planVersionId,
+    BillingCycle $billingCycle = BillingCycle::Monthly,
+    int $trialDays = 0,
+): PlanPrice {
+    return new PlanPrice(
+        id: Uuid::generate(),
+        planVersionId: $planVersionId,
+        billingCycle: $billingCycle,
+        price: new Money(9900, 'BRL'),
+        trialDays: $trialDays,
     );
 }
 
@@ -54,6 +66,7 @@ test('creates a new subscription successfully', function () {
     $tenantId = Uuid::generate();
     $planVersionId = Uuid::generate();
     $planVersion = createActivePlanVersion($planVersionId);
+    $planPrice = createActivePlanPrice($planVersionId);
 
     $subscriptionRepo = Mockery::mock(SubscriptionRepositoryInterface::class);
     $subscriptionRepo->expects('findActiveByTenantId')->andReturnNull();
@@ -62,7 +75,10 @@ test('creates a new subscription successfully', function () {
     $planVersionRepo = Mockery::mock(PlanVersionRepositoryInterface::class);
     $planVersionRepo->expects('findById')->andReturn($planVersion);
 
-    $useCase = new CreateSubscription($subscriptionRepo, $planVersionRepo);
+    $planPriceRepo = Mockery::mock(PlanPriceRepositoryInterface::class);
+    $planPriceRepo->expects('findByPlanVersionIdAndBillingCycle')->andReturn($planPrice);
+
+    $useCase = new CreateSubscription($subscriptionRepo, $planVersionRepo, $planPriceRepo);
 
     $dto = new CreateSubscriptionDTO(
         tenantId: $tenantId->value(),
@@ -93,7 +109,9 @@ test('returns existing subscription when tenant already has one (idempotent)', f
     $planVersionRepo = Mockery::mock(PlanVersionRepositoryInterface::class);
     $planVersionRepo->shouldNotReceive('findById');
 
-    $useCase = new CreateSubscription($subscriptionRepo, $planVersionRepo);
+    $planPriceRepo = Mockery::mock(PlanPriceRepositoryInterface::class);
+
+    $useCase = new CreateSubscription($subscriptionRepo, $planVersionRepo, $planPriceRepo);
 
     $dto = new CreateSubscriptionDTO(
         tenantId: $tenantId->value(),
@@ -117,9 +135,6 @@ test('throws when plan version is inactive', function () {
         id: $planVersionId,
         planId: Uuid::generate(),
         version: 1,
-        price: new Money(9900, 'BRL'),
-        billingCycle: BillingCycle::Monthly,
-        trialDays: 0,
         status: PlanStatus::Inactive,
         createdAt: new DateTimeImmutable,
     );
@@ -130,7 +145,9 @@ test('throws when plan version is inactive', function () {
     $planVersionRepo = Mockery::mock(PlanVersionRepositoryInterface::class);
     $planVersionRepo->expects('findById')->andReturn($inactivePlanVersion);
 
-    $useCase = new CreateSubscription($subscriptionRepo, $planVersionRepo);
+    $planPriceRepo = Mockery::mock(PlanPriceRepositoryInterface::class);
+
+    $useCase = new CreateSubscription($subscriptionRepo, $planVersionRepo, $planPriceRepo);
 
     $dto = new CreateSubscriptionDTO(
         tenantId: $tenantId->value(),

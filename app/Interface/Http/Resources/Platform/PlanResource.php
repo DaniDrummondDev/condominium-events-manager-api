@@ -26,12 +26,15 @@ class PlanResource extends JsonResource
             'current_version' => $this->resource->currentVersion ? [
                 'id' => $this->resource->currentVersion->id,
                 'version' => $this->resource->currentVersion->version,
-                'price_in_cents' => $this->resource->currentVersion->priceInCents,
-                'currency' => $this->resource->currentVersion->currency,
-                'billing_cycle' => $this->resource->currentVersion->billingCycle,
-                'trial_days' => $this->resource->currentVersion->trialDays,
                 'status' => $this->resource->currentVersion->status,
                 'created_at' => $this->resource->currentVersion->createdAt,
+                'prices' => array_map(fn ($p) => [
+                    'id' => $p->id,
+                    'billing_cycle' => $p->billingCycle,
+                    'price_in_cents' => $p->priceInCents,
+                    'currency' => $p->currency,
+                    'trial_days' => $p->trialDays,
+                ], $this->resource->currentVersion->prices),
             ] : null,
             'features' => $this->resource->features,
         ];

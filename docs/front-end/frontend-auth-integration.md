@@ -616,6 +616,59 @@ function onRequestFail(error) {
 }
 ```
 
+### 4.3.1 Preservacao de URL apos Expiracao de Sessao
+
+Quando a sessao expira (refresh token falha), o frontend deve **salvar a URL atual** antes de redirecionar para o login. Apos o login bem-sucedido, o usuario e redirecionado de volta para a pagina em que estava.
+
+**Implementacao sugerida:**
+
+```
+const REDIRECT_KEY = 'redirect_after_login'
+
+// Salvar URL antes de ir para login
+function redirectToLogin() {
+  const currentPath = window.location.pathname + window.location.search
+
+  // Nao salvar rotas publicas (login, register, etc.)
+  const publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password']
+  if (!publicRoutes.some(route => currentPath.startsWith(route))) {
+    sessionStorage.setItem(REDIRECT_KEY, currentPath)
+  }
+
+  clearTokens()
+  window.location.href = '/login'
+}
+
+// Apos login bem-sucedido, redirecionar para a URL salva
+function onLoginSuccess(tokens) {
+  storeTokens(tokens)
+
+  const redirectUrl = sessionStorage.getItem(REDIRECT_KEY)
+  sessionStorage.removeItem(REDIRECT_KEY)
+
+  // Validar que e uma rota interna (prevenir open redirect)
+  const safeUrl = (redirectUrl && redirectUrl.startsWith('/')) ? redirectUrl : '/dashboard'
+
+  router.push(safeUrl)
+}
+```
+
+**Regras de seguranca:**
+
+| Regra | Descricao |
+|-------|-----------|
+| Usar `sessionStorage` | Limpa automaticamente ao fechar o browser, evita persistencia indevida |
+| Salvar apenas pathname + search | Nunca salvar URL completa (com dominio) — previne open redirect |
+| Validar prefixo `/` | Garantir que a URL salva e interna (comeca com `/`) |
+| Ignorar rotas publicas | Nao salvar `/login`, `/register`, etc. como destino de retorno |
+| Limpar apos uso | Remover a URL salva imediatamente apos o redirect |
+
+**Cenarios cobertos:**
+
+1. **Sessao expira durante navegacao** — usuario volta para a mesma pagina apos re-login
+2. **Acesso direto a rota protegida** — guard de rota salva a URL e redireciona para login
+3. **Logout manual** — nao salva URL (o usuario escolheu sair intencionalmente)
+
 ### 4.4 Endpoint de Refresh
 
 **Endpoint:** `POST /api/v1/{context}/auth/refresh`
@@ -1140,6 +1193,8 @@ Todos os IDs sao **UUID v7** (ordenados por tempo). Nunca usar IDs sequenciais.
 - [ ] Substituicao do refresh_token apos cada refresh (rotacao)
 - [ ] Limpeza completa de tokens no logout
 - [ ] Redirect para login quando refresh falha
+- [ ] Preservar URL atual em sessionStorage antes de redirecionar para login (sessao expirada)
+- [ ] Restaurar URL salva apos login bem-sucedido (redirect de retorno)
 
 ### Tratamento de Erros
 

@@ -901,20 +901,33 @@ Retorna a lista de todos os planos disponiveis na plataforma.
             "name": "Basico",
             "slug": "basico",
             "description": "Plano ideal para condominios pequenos com ate 50 unidades.",
-            "price": 199.90,
-            "billing_cycle": "monthly",
-            "trial_days": 14,
             "is_active": true,
-            "features": [
-                "reservations",
-                "violations",
-                "communications"
-            ],
-            "limits": {
-                "max_units": 50,
-                "max_users": 100,
-                "max_spaces": 3,
-                "max_reservations_per_month": 100
+            "current_version": {
+                "id": "01912e4a-b123-7011-2c3d-4e5f6a7b8c9d",
+                "version": 1,
+                "status": "active",
+                "created_at": "2026-01-01T00:00:00Z",
+                "prices": [
+                    {
+                        "id": "01912e4a-c001-7011-2c3d-4e5f6a7b8c9d",
+                        "billing_cycle": "monthly",
+                        "price_in_cents": 19990,
+                        "currency": "BRL",
+                        "trial_days": 14
+                    },
+                    {
+                        "id": "01912e4a-c002-7011-2c3d-4e5f6a7b8c9d",
+                        "billing_cycle": "yearly",
+                        "price_in_cents": 199900,
+                        "currency": "BRL",
+                        "trial_days": 14
+                    }
+                ],
+                "features": [
+                    { "key": "max_units", "value": "50", "type": "integer" },
+                    { "key": "max_users", "value": "100", "type": "integer" },
+                    { "key": "max_spaces", "value": "3", "type": "integer" }
+                ]
             },
             "created_at": "2026-01-01T00:00:00Z",
             "updated_at": "2026-01-01T00:00:00Z"
@@ -924,22 +937,40 @@ Retorna a lista de todos os planos disponiveis na plataforma.
             "name": "Profissional",
             "slug": "profissional",
             "description": "Plano completo para condominios de medio porte.",
-            "price": 499.90,
-            "billing_cycle": "monthly",
-            "trial_days": 14,
             "is_active": true,
-            "features": [
-                "reservations",
-                "violations",
-                "communications",
-                "financial",
-                "reports"
-            ],
-            "limits": {
-                "max_units": 200,
-                "max_users": 500,
-                "max_spaces": 10,
-                "max_reservations_per_month": 500
+            "current_version": {
+                "id": "01912e4a-d456-7e9f-0a1b-2c3d4e5f6a7b",
+                "version": 2,
+                "status": "active",
+                "created_at": "2026-01-15T10:00:00Z",
+                "prices": [
+                    {
+                        "id": "01912e4a-d501-7e9f-0a1b-2c3d4e5f6a7b",
+                        "billing_cycle": "monthly",
+                        "price_in_cents": 49990,
+                        "currency": "BRL",
+                        "trial_days": 14
+                    },
+                    {
+                        "id": "01912e4a-d502-7e9f-0a1b-2c3d4e5f6a7b",
+                        "billing_cycle": "semiannual",
+                        "price_in_cents": 249950,
+                        "currency": "BRL",
+                        "trial_days": 14
+                    },
+                    {
+                        "id": "01912e4a-d503-7e9f-0a1b-2c3d4e5f6a7b",
+                        "billing_cycle": "yearly",
+                        "price_in_cents": 449900,
+                        "currency": "BRL",
+                        "trial_days": 14
+                    }
+                ],
+                "features": [
+                    { "key": "max_units", "value": "200", "type": "integer" },
+                    { "key": "max_users", "value": "500", "type": "integer" },
+                    { "key": "max_spaces", "value": "10", "type": "integer" }
+                ]
             },
             "created_at": "2026-01-01T00:00:00Z",
             "updated_at": "2026-01-15T10:00:00Z"
@@ -971,41 +1002,51 @@ Cria um novo plano na plataforma.
     "name": "Enterprise",
     "slug": "enterprise",
     "description": "Plano para grandes condominios e redes de condominios.",
-    "price": 999.90,
-    "billing_cycle": "monthly",
-    "trial_days": 30,
-    "features": [
-        "reservations",
-        "violations",
-        "communications",
-        "financial",
-        "reports",
-        "api_access",
-        "custom_branding"
+    "prices": [
+        {
+            "billing_cycle": "monthly",
+            "price": 99990,
+            "currency": "BRL",
+            "trial_days": 30
+        },
+        {
+            "billing_cycle": "semiannual",
+            "price": 499950,
+            "currency": "BRL",
+            "trial_days": 30
+        },
+        {
+            "billing_cycle": "yearly",
+            "price": 899900,
+            "currency": "BRL",
+            "trial_days": 30
+        }
     ],
-    "limits": {
-        "max_units": 1000,
-        "max_users": 2000,
-        "max_spaces": 50,
-        "max_reservations_per_month": 5000
-    }
+    "features": [
+        { "key": "max_units", "value": "1000", "type": "integer" },
+        { "key": "max_users", "value": "2000", "type": "integer" },
+        { "key": "max_spaces", "value": "50", "type": "integer" },
+        { "key": "max_reservations_per_month", "value": "5000", "type": "integer" },
+        { "key": "api_access", "value": "true", "type": "boolean" },
+        { "key": "custom_branding", "value": "true", "type": "boolean" }
+    ]
 }
 ```
 
-| Campo                              | Tipo     | Obrigatorio | Descricao                                    |
-|------------------------------------|----------|-------------|----------------------------------------------|
-| `name`                             | string   | Sim         | Nome do plano                                |
-| `slug`                             | string   | Sim         | Slug unico do plano                          |
-| `description`                      | string   | Nao         | Descricao do plano                           |
-| `price`                            | decimal  | Sim         | Preco em BRL                                 |
-| `billing_cycle`                    | string   | Sim         | Ciclo de cobranca: `monthly`, `yearly`       |
-| `trial_days`                       | integer  | Nao         | Dias de teste gratuito (padrao: 0)           |
-| `features`                         | string[] | Sim         | Lista de funcionalidades incluidas no plano  |
-| `limits`                           | object   | Sim         | Limites de uso do plano                      |
-| `limits.max_units`                 | integer  | Sim         | Numero maximo de unidades                    |
-| `limits.max_users`                 | integer  | Sim         | Numero maximo de usuarios                    |
-| `limits.max_spaces`                | integer  | Sim         | Numero maximo de espacos para reserva        |
-| `limits.max_reservations_per_month`| integer  | Sim         | Numero maximo de reservas por mes            |
+| Campo                        | Tipo     | Obrigatorio | Descricao                                                |
+|------------------------------|----------|-------------|----------------------------------------------------------|
+| `name`                       | string   | Sim         | Nome do plano                                            |
+| `slug`                       | string   | Sim         | Slug unico do plano                                      |
+| `description`                | string   | Nao         | Descricao do plano                                       |
+| `prices`                     | array    | Sim         | Array de precos (min: 1)                                 |
+| `prices.*.billing_cycle`     | string   | Sim         | Ciclo: `monthly`, `semiannual`, `yearly`                 |
+| `prices.*.price`             | integer  | Sim         | Preco em centavos (ex: 9990 = R$ 99,90)                  |
+| `prices.*.currency`          | string   | Nao         | Moeda ISO 4217 (padrao: "BRL")                           |
+| `prices.*.trial_days`        | integer  | Nao         | Dias de teste gratuito (padrao: 0)                       |
+| `features`                   | array    | Sim         | Lista de features do plano                               |
+| `features.*.key`             | string   | Sim         | Chave da feature                                         |
+| `features.*.value`           | string   | Sim         | Valor da feature                                         |
+| `features.*.type`            | string   | Sim         | Tipo: `boolean`, `integer`, `string`                     |
 
 **Resposta de sucesso (201 Created):**
 
@@ -1016,24 +1057,43 @@ Cria um novo plano na plataforma.
         "name": "Enterprise",
         "slug": "enterprise",
         "description": "Plano para grandes condominios e redes de condominios.",
-        "price": 999.90,
-        "billing_cycle": "monthly",
-        "trial_days": 30,
         "is_active": true,
-        "features": [
-            "reservations",
-            "violations",
-            "communications",
-            "financial",
-            "reports",
-            "api_access",
-            "custom_branding"
-        ],
-        "limits": {
-            "max_units": 1000,
-            "max_users": 2000,
-            "max_spaces": 50,
-            "max_reservations_per_month": 5000
+        "current_version": {
+            "id": "01912e4a-c082-7233-4e5f-6a7b8c9d0e1f",
+            "version": 1,
+            "status": "active",
+            "created_at": "2026-02-10T20:00:00Z",
+            "prices": [
+                {
+                    "id": "01912e4a-c091-7233-4e5f-6a7b8c9d0e1f",
+                    "billing_cycle": "monthly",
+                    "price_in_cents": 99990,
+                    "currency": "BRL",
+                    "trial_days": 30
+                },
+                {
+                    "id": "01912e4a-c092-7233-4e5f-6a7b8c9d0e1f",
+                    "billing_cycle": "semiannual",
+                    "price_in_cents": 499950,
+                    "currency": "BRL",
+                    "trial_days": 30
+                },
+                {
+                    "id": "01912e4a-c093-7233-4e5f-6a7b8c9d0e1f",
+                    "billing_cycle": "yearly",
+                    "price_in_cents": 899900,
+                    "currency": "BRL",
+                    "trial_days": 30
+                }
+            ],
+            "features": [
+                { "key": "max_units", "value": "1000", "type": "integer" },
+                { "key": "max_users", "value": "2000", "type": "integer" },
+                { "key": "max_spaces", "value": "50", "type": "integer" },
+                { "key": "max_reservations_per_month", "value": "5000", "type": "integer" },
+                { "key": "api_access", "value": "true", "type": "boolean" },
+                { "key": "custom_branding", "value": "true", "type": "boolean" }
+            ]
         },
         "created_at": "2026-02-10T20:00:00Z",
         "updated_at": "2026-02-10T20:00:00Z"
@@ -1074,45 +1134,53 @@ Retorna os detalhes de um plano, incluindo o historico de versoes.
         "name": "Profissional",
         "slug": "profissional",
         "description": "Plano completo para condominios de medio porte.",
-        "price": 499.90,
-        "billing_cycle": "monthly",
-        "trial_days": 14,
         "is_active": true,
-        "features": [
-            "reservations",
-            "violations",
-            "communications",
-            "financial",
-            "reports"
-        ],
-        "limits": {
-            "max_units": 200,
-            "max_users": 500,
-            "max_spaces": 10,
-            "max_reservations_per_month": 500
+        "current_version": {
+            "id": "01912e4a-d456-7e9f-0a1b-2c3d4e5f6a7b",
+            "version": 2,
+            "status": "active",
+            "created_at": "2026-01-15T10:00:00Z",
+            "prices": [
+                {
+                    "id": "01912e4a-d501-7e9f-0a1b-2c3d4e5f6a7b",
+                    "billing_cycle": "monthly",
+                    "price_in_cents": 49990,
+                    "currency": "BRL",
+                    "trial_days": 14
+                },
+                {
+                    "id": "01912e4a-d502-7e9f-0a1b-2c3d4e5f6a7b",
+                    "billing_cycle": "yearly",
+                    "price_in_cents": 449900,
+                    "currency": "BRL",
+                    "trial_days": 14
+                }
+            ],
+            "features": [
+                { "key": "max_units", "value": "200", "type": "integer" },
+                { "key": "max_users", "value": "500", "type": "integer" },
+                { "key": "max_spaces", "value": "10", "type": "integer" },
+                { "key": "max_reservations_per_month", "value": "500", "type": "integer" }
+            ]
         },
         "versions": [
             {
                 "version": 2,
-                "price": 499.90,
-                "limits": {
-                    "max_units": 200,
-                    "max_users": 500,
-                    "max_spaces": 10,
-                    "max_reservations_per_month": 500
-                },
-                "effective_at": "2026-01-15T10:00:00Z"
+                "status": "active",
+                "prices": [
+                    { "billing_cycle": "monthly", "price_in_cents": 49990 },
+                    { "billing_cycle": "yearly", "price_in_cents": 449900 }
+                ],
+                "created_at": "2026-01-15T10:00:00Z"
             },
             {
                 "version": 1,
-                "price": 399.90,
-                "limits": {
-                    "max_units": 150,
-                    "max_users": 300,
-                    "max_spaces": 5,
-                    "max_reservations_per_month": 300
-                },
-                "effective_at": "2026-01-01T00:00:00Z"
+                "status": "deprecated",
+                "prices": [
+                    { "billing_cycle": "monthly", "price_in_cents": 39990 },
+                    { "billing_cycle": "yearly", "price_in_cents": 399900 }
+                ],
+                "created_at": "2026-01-01T00:00:00Z"
             }
         ],
         "created_at": "2026-01-01T00:00:00Z",
@@ -1149,21 +1217,27 @@ Atualiza um plano existente. Cada atualizacao cria uma nova `PlanVersion` para m
 ```json
 {
     "name": "Profissional Plus",
-    "price": 549.90,
-    "features": [
-        "reservations",
-        "violations",
-        "communications",
-        "financial",
-        "reports",
-        "api_access"
+    "prices": [
+        {
+            "billing_cycle": "monthly",
+            "price": 54990,
+            "currency": "BRL",
+            "trial_days": 14
+        },
+        {
+            "billing_cycle": "yearly",
+            "price": 499900,
+            "currency": "BRL",
+            "trial_days": 14
+        }
     ],
-    "limits": {
-        "max_units": 250,
-        "max_users": 600,
-        "max_spaces": 15,
-        "max_reservations_per_month": 700
-    }
+    "features": [
+        { "key": "max_units", "value": "250", "type": "integer" },
+        { "key": "max_users", "value": "600", "type": "integer" },
+        { "key": "max_spaces", "value": "15", "type": "integer" },
+        { "key": "max_reservations_per_month", "value": "700", "type": "integer" },
+        { "key": "api_access", "value": "true", "type": "boolean" }
+    ]
 }
 ```
 
@@ -1176,25 +1250,36 @@ Atualiza um plano existente. Cada atualizacao cria uma nova `PlanVersion` para m
         "name": "Profissional Plus",
         "slug": "profissional",
         "description": "Plano completo para condominios de medio porte.",
-        "price": 549.90,
-        "billing_cycle": "monthly",
-        "trial_days": 14,
         "is_active": true,
-        "features": [
-            "reservations",
-            "violations",
-            "communications",
-            "financial",
-            "reports",
-            "api_access"
-        ],
-        "limits": {
-            "max_units": 250,
-            "max_users": 600,
-            "max_spaces": 15,
-            "max_reservations_per_month": 700
+        "current_version": {
+            "id": "01912e4a-e789-7e9f-0a1b-2c3d4e5f6a7b",
+            "version": 3,
+            "status": "active",
+            "created_at": "2026-02-10T21:00:00Z",
+            "prices": [
+                {
+                    "id": "01912e4a-e801-7e9f-0a1b-2c3d4e5f6a7b",
+                    "billing_cycle": "monthly",
+                    "price_in_cents": 54990,
+                    "currency": "BRL",
+                    "trial_days": 14
+                },
+                {
+                    "id": "01912e4a-e802-7e9f-0a1b-2c3d4e5f6a7b",
+                    "billing_cycle": "yearly",
+                    "price_in_cents": 499900,
+                    "currency": "BRL",
+                    "trial_days": 14
+                }
+            ],
+            "features": [
+                { "key": "max_units", "value": "250", "type": "integer" },
+                { "key": "max_users", "value": "600", "type": "integer" },
+                { "key": "max_spaces", "value": "15", "type": "integer" },
+                { "key": "max_reservations_per_month", "value": "700", "type": "integer" },
+                { "key": "api_access", "value": "true", "type": "boolean" }
+            ]
         },
-        "current_version": 3,
         "created_at": "2026-01-01T00:00:00Z",
         "updated_at": "2026-02-10T21:00:00Z"
     }

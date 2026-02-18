@@ -256,35 +256,24 @@ Define um plano comercial disponivel na plataforma.
 
 ---
 
-#### 3.2.2 PlanVersion (Aggregate Root do contexto de precificacao)
+#### 3.2.2 PlanVersion
 
-Versao especifica de um plano, contendo preco, ciclo e features.
+Versao especifica de um plano. Cada versao pode ter N precos (um por ciclo de cobranca), definidos na entidade PlanPrice.
 
 | Campo | Tipo | Nullable | Descricao |
 |-------|------|----------|-----------|
 | `id` | `UUID` | No | Identificador unico |
 | `plan_id` | `UUID` | No | FK para Plan |
 | `version` | `integer` | No | Numero sequencial da versao |
-| `price` | `decimal(10,2)` | No | Preco do plano |
-| `currency` | `string(3)` | No | Moeda (ISO 4217, ex: "BRL") |
-| `billing_cycle` | `enum` | No | `monthly`, `yearly` |
-| `trial_days` | `integer` | No | Dias de trial (0 = sem trial) |
 | `status` | `enum` | No | `active`, `deprecated` |
 | `created_at` | `timestamp` | No | Data de criacao |
 
-**Value Objects:**
-
-- `Money`: composto por `amount: decimal` + `currency: string(3)`
-- `BillingCycle`: enum (`monthly`, `yearly`)
-
 **Invariantes:**
 
-1. Apenas uma PlanVersion pode estar `active` por Plan e BillingCycle
+1. Apenas uma PlanVersion pode estar `active` por Plan
 2. PlanVersion `deprecated` nao aceita novas assinaturas
 3. PlanVersion com assinaturas ativas nao pode ser excluida
-4. `price` deve ser >= 0
-5. `trial_days` deve ser >= 0
-6. `version` e auto-incremental por Plan
+4. `version` e auto-incremental por Plan
 
 **Domain Events:**
 
@@ -293,7 +282,33 @@ Versao especifica de um plano, contendo preco, ciclo e features.
 
 ---
 
-#### 3.2.3 PlanFeature
+#### 3.2.3 PlanPrice
+
+Preco associado a uma versao de plano, permitindo multiplos ciclos de cobranca por versao.
+
+| Campo | Tipo | Nullable | Descricao |
+|-------|------|----------|-----------|
+| `id` | `UUID` | No | Identificador unico |
+| `plan_version_id` | `UUID` | No | FK para PlanVersion |
+| `billing_cycle` | `enum` | No | `monthly`, `semiannual`, `yearly` |
+| `price` | `Money` | No | Preco do plano (amount + currency) |
+| `trial_days` | `integer` | No | Dias de trial (0 = sem trial) |
+
+**Value Objects:**
+
+- `Money`: composto por `amount: integer (centavos)` + `currency: string(3)`
+- `BillingCycle`: enum (`monthly`, `semiannual`, `yearly`)
+
+**Invariantes:**
+
+1. `billing_cycle` deve ser unico por PlanVersion
+2. `price` deve ser >= 0
+3. `trial_days` deve ser >= 0
+4. PlanPrice pertence exclusivamente a uma PlanVersion
+
+---
+
+#### 3.2.4 PlanFeature
 
 Feature associada a uma versao de plano.
 
@@ -313,7 +328,7 @@ Feature associada a uma versao de plano.
 
 ---
 
-#### 3.2.4 Feature
+#### 3.2.5 Feature
 
 Catalogo global de features configuraveis da plataforma.
 
@@ -335,7 +350,7 @@ Catalogo global de features configuraveis da plataforma.
 
 ---
 
-#### 3.2.5 TenantFeatureOverride
+#### 3.2.6 TenantFeatureOverride
 
 Override de feature para um tenant especifico (excecao ao plano).
 
@@ -365,7 +380,7 @@ Override de feature para um tenant especifico (excecao ao plano).
 
 ---
 
-#### 3.2.6 Subscription (Aggregate Root)
+#### 3.2.7 Subscription (Aggregate Root)
 
 Vinculo ativo entre um Tenant e um PlanVersion. Controla acesso ao sistema.
 
@@ -432,7 +447,7 @@ trialing --> active --> past_due --> grace_period --> suspended --> canceled -->
 
 ---
 
-#### 3.2.7 Invoice (Aggregate Root)
+#### 3.2.8 Invoice (Aggregate Root)
 
 Fatura gerada por ciclo de assinatura.
 
@@ -489,7 +504,7 @@ draft --> open --> paid
 
 ---
 
-#### 3.2.8 InvoiceItem
+#### 3.2.9 InvoiceItem
 
 Item de linha dentro de uma Invoice.
 
@@ -512,7 +527,7 @@ Item de linha dentro de uma Invoice.
 
 ---
 
-#### 3.2.9 Payment
+#### 3.2.10 Payment
 
 Transacao financeira vinculada a uma fatura.
 
@@ -565,7 +580,7 @@ pending --> authorized --> paid --> refunded
 
 ---
 
-#### 3.2.10 DunningPolicy
+#### 3.2.11 DunningPolicy
 
 Politica de inadimplencia que define regras de cobranca automatica.
 

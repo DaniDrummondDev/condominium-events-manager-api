@@ -6,6 +6,7 @@ namespace Application\Billing\UseCases;
 
 use Application\Billing\Contracts\InvoiceNumberGeneratorInterface;
 use Application\Billing\Contracts\InvoiceRepositoryInterface;
+use Application\Billing\Contracts\PlanPriceRepositoryInterface;
 use Application\Billing\Contracts\PlanVersionRepositoryInterface;
 use Application\Billing\Contracts\SubscriptionRepositoryInterface;
 use Application\Billing\DTOs\GenerateInvoiceDTO;
@@ -23,6 +24,7 @@ final readonly class GenerateInvoice
     public function __construct(
         private SubscriptionRepositoryInterface $subscriptionRepository,
         private PlanVersionRepositoryInterface $planVersionRepository,
+        private PlanPriceRepositoryInterface $planPriceRepository,
         private InvoiceRepositoryInterface $invoiceRepository,
         private InvoiceNumberGeneratorInterface $invoiceNumberGenerator,
     ) {}
@@ -63,8 +65,24 @@ final readonly class GenerateInvoice
             );
         }
 
+        $planPrice = $this->planPriceRepository->findByPlanVersionIdAndBillingCycle(
+            $subscription->planVersionId(),
+            $subscription->billingCycle(),
+        );
+
+        if ($planPrice === null) {
+            throw new DomainException(
+                'Plan price not found for billing cycle',
+                'PLAN_PRICE_NOT_FOUND',
+                [
+                    'plan_version_id' => $subscription->planVersionId()->value(),
+                    'billing_cycle' => $subscription->billingCycle()->value,
+                ],
+            );
+        }
+
         $invoiceNumber = $this->invoiceNumberGenerator->generate($subscription->tenantId());
-        $currency = $planVersion->price()->currency();
+        $currency = $planPrice->price()->currency();
 
         $dueDate = $periodStart;
 
@@ -81,9 +99,9 @@ final readonly class GenerateInvoice
             Uuid::generate(),
             $invoice->id(),
             InvoiceItemType::Plan,
-            "Subscription — {$planVersion->billingCycle()->label()}",
+            "Subscription — {$planPrice->billingCycle()->label()}",
             1,
-            $planVersion->price(),
+            $planPrice->price(),
         );
 
         $invoice->addItem($item);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Application\Billing\UseCases;
 
+use Application\Billing\Contracts\PlanPriceRepositoryInterface;
 use Application\Billing\Contracts\PlanVersionRepositoryInterface;
 use Application\Billing\Contracts\SubscriptionRepositoryInterface;
 use Application\Billing\DTOs\CreateSubscriptionDTO;
@@ -20,6 +21,7 @@ final readonly class CreateSubscription
     public function __construct(
         private SubscriptionRepositoryInterface $subscriptionRepository,
         private PlanVersionRepositoryInterface $planVersionRepository,
+        private PlanPriceRepositoryInterface $planPriceRepository,
     ) {}
 
     public function execute(CreateSubscriptionDTO $dto): SubscriptionDTO
@@ -50,13 +52,16 @@ final readonly class CreateSubscription
 
         $modifier = match ($billingCycle) {
             BillingCycle::Monthly => '+1 month',
+            BillingCycle::Semiannual => '+6 months',
             BillingCycle::Yearly => '+1 year',
         };
 
         $period = new BillingPeriod($startDate, $startDate->modify($modifier));
 
-        if ($planVersion->hasTrialPeriod()) {
-            $trialEnd = $startDate->modify("+{$planVersion->trialDays()} days");
+        $planPrice = $this->planPriceRepository->findByPlanVersionIdAndBillingCycle($planVersionId, $billingCycle);
+
+        if ($planPrice !== null && $planPrice->hasTrialPeriod()) {
+            $trialEnd = $startDate->modify("+{$planPrice->trialDays()} days");
             $trialPeriod = new BillingPeriod($startDate, $trialEnd);
 
             $subscription = Subscription::createTrialing(

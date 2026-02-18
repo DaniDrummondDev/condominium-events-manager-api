@@ -434,7 +434,7 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"name\": \"Enterprise\",\n  \"slug\": \"enterprise\",\n  \"price\": 99990,\n  \"currency\": \"BRL\",\n  \"billing_cycle\": \"monthly\",\n  \"trial_days\": 30,\n  \"features\": [\n    { \"key\": \"max_units\", \"value\": \"1000\", \"type\": \"integer\" },\n    { \"key\": \"max_users\", \"value\": \"2000\", \"type\": \"integer\" },\n    { \"key\": \"max_spaces\", \"value\": \"50\", \"type\": \"integer\" },\n    { \"key\": \"reservations\", \"value\": \"true\", \"type\": \"boolean\" }\n  ]\n}"
+        "text": "{\n  \"name\": \"Enterprise\",\n  \"slug\": \"enterprise\",\n  \"prices\": [\n    { \"billing_cycle\": \"monthly\", \"price\": 99990, \"currency\": \"BRL\", \"trial_days\": 30 },\n    { \"billing_cycle\": \"yearly\", \"price\": 999900, \"currency\": \"BRL\", \"trial_days\": 30 }\n  ],\n  \"features\": [\n    { \"key\": \"max_units\", \"value\": \"1000\", \"type\": \"integer\" },\n    { \"key\": \"max_users\", \"value\": \"2000\", \"type\": \"integer\" },\n    { \"key\": \"max_spaces\", \"value\": \"50\", \"type\": \"integer\" },\n    { \"key\": \"reservations\", \"value\": \"true\", \"type\": \"boolean\" }\n  ]\n}"
       },
       "parentId": "fld_plans"
     },
@@ -479,7 +479,7 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"price\": 29990,\n  \"currency\": \"BRL\",\n  \"billing_cycle\": \"monthly\",\n  \"trial_days\": 0,\n  \"features\": [\n    { \"key\": \"max_units\", \"value\": \"200\", \"type\": \"integer\" },\n    { \"key\": \"max_spaces\", \"value\": \"20\", \"type\": \"integer\" }\n  ]\n}"
+        "text": "{\n  \"prices\": [\n    { \"billing_cycle\": \"monthly\", \"price\": 29990, \"currency\": \"BRL\", \"trial_days\": 0 },\n    { \"billing_cycle\": \"yearly\", \"price\": 299900, \"currency\": \"BRL\", \"trial_days\": 0 }\n  ],\n  \"features\": [\n    { \"key\": \"max_units\", \"value\": \"200\", \"type\": \"integer\" },\n    { \"key\": \"max_spaces\", \"value\": \"20\", \"type\": \"integer\" }\n  ]\n}"
       },
       "parentId": "fld_plans"
     },

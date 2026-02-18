@@ -18,6 +18,16 @@ class PlanVersionController
         CreatePlanVersion $useCase,
     ): JsonResponse {
         try {
+            $prices = [];
+            foreach ($request->validated('prices', []) as $price) {
+                $prices[] = [
+                    'billing_cycle' => $price['billing_cycle'],
+                    'price_in_cents' => $price['price'],
+                    'currency' => $price['currency'] ?? 'BRL',
+                    'trial_days' => $price['trial_days'] ?? 0,
+                ];
+            }
+
             $features = [];
             foreach ($request->validated('features', []) as $feature) {
                 $features[] = [
@@ -29,10 +39,7 @@ class PlanVersionController
 
             $result = $useCase->execute(new CreatePlanVersionDTO(
                 planId: $planId,
-                priceInCents: $request->validated('price'),
-                currency: $request->validated('currency', 'BRL'),
-                billingCycle: $request->validated('billing_cycle'),
-                trialDays: $request->validated('trial_days', 0),
+                prices: $prices,
                 features: $features,
             ));
 
@@ -40,12 +47,15 @@ class PlanVersionController
                 'data' => [
                     'id' => $result->id,
                     'version' => $result->version,
-                    'price_in_cents' => $result->priceInCents,
-                    'currency' => $result->currency,
-                    'billing_cycle' => $result->billingCycle,
-                    'trial_days' => $result->trialDays,
                     'status' => $result->status,
                     'created_at' => $result->createdAt,
+                    'prices' => array_map(fn ($p) => [
+                        'id' => $p->id,
+                        'billing_cycle' => $p->billingCycle,
+                        'price_in_cents' => $p->priceInCents,
+                        'currency' => $p->currency,
+                        'trial_days' => $p->trialDays,
+                    ], $result->prices),
                 ],
             ], 201);
         } catch (DomainException $e) {

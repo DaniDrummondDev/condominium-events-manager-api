@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 use Application\Billing\Contracts\InvoiceNumberGeneratorInterface;
 use Application\Billing\Contracts\InvoiceRepositoryInterface;
+use Application\Billing\Contracts\PlanPriceRepositoryInterface;
 use Application\Billing\Contracts\PlanVersionRepositoryInterface;
 use Application\Billing\Contracts\SubscriptionRepositoryInterface;
 use Application\Billing\DTOs\GenerateInvoiceDTO;
 use Application\Billing\DTOs\InvoiceDTO;
 use Application\Billing\UseCases\GenerateInvoice;
 use Domain\Billing\Entities\Invoice;
+use Domain\Billing\Entities\PlanPrice;
 use Domain\Billing\Entities\PlanVersion;
 use Domain\Billing\Entities\Subscription;
 use Domain\Billing\Enums\BillingCycle;
@@ -42,11 +44,16 @@ test('generates an invoice for a subscription successfully', function () {
         id: $planVersionId,
         planId: Uuid::generate(),
         version: 1,
-        price: new Money(9900, 'BRL'),
-        billingCycle: BillingCycle::Monthly,
-        trialDays: 0,
         status: PlanStatus::Active,
         createdAt: new DateTimeImmutable,
+    );
+
+    $planPrice = new PlanPrice(
+        id: Uuid::generate(),
+        planVersionId: $planVersionId,
+        billingCycle: BillingCycle::Monthly,
+        price: new Money(9900, 'BRL'),
+        trialDays: 0,
     );
 
     $invoiceNumber = new InvoiceNumber(2025, 1);
@@ -61,12 +68,16 @@ test('generates an invoice for a subscription successfully', function () {
     $planVersionRepo = Mockery::mock(PlanVersionRepositoryInterface::class);
     $planVersionRepo->expects('findById')->andReturn($planVersion);
 
+    $planPriceRepo = Mockery::mock(PlanPriceRepositoryInterface::class);
+    $planPriceRepo->expects('findByPlanVersionIdAndBillingCycle')->andReturn($planPrice);
+
     $numberGenerator = Mockery::mock(InvoiceNumberGeneratorInterface::class);
     $numberGenerator->expects('generate')->andReturn($invoiceNumber);
 
     $useCase = new GenerateInvoice(
         $subscriptionRepo,
         $planVersionRepo,
+        $planPriceRepo,
         $invoiceRepo,
         $numberGenerator,
     );
@@ -114,12 +125,15 @@ test('returns existing invoice for same period (idempotent)', function () {
     $planVersionRepo = Mockery::mock(PlanVersionRepositoryInterface::class);
     $planVersionRepo->shouldNotReceive('findById');
 
+    $planPriceRepo = Mockery::mock(PlanPriceRepositoryInterface::class);
+
     $numberGenerator = Mockery::mock(InvoiceNumberGeneratorInterface::class);
     $numberGenerator->shouldNotReceive('generate');
 
     $useCase = new GenerateInvoice(
         $subscriptionRepo,
         $planVersionRepo,
+        $planPriceRepo,
         $invoiceRepo,
         $numberGenerator,
     );
@@ -147,11 +161,13 @@ test('throws when subscription is not found', function () {
     $subscriptionRepo->expects('findById')->andReturnNull();
 
     $planVersionRepo = Mockery::mock(PlanVersionRepositoryInterface::class);
+    $planPriceRepo = Mockery::mock(PlanPriceRepositoryInterface::class);
     $numberGenerator = Mockery::mock(InvoiceNumberGeneratorInterface::class);
 
     $useCase = new GenerateInvoice(
         $subscriptionRepo,
         $planVersionRepo,
+        $planPriceRepo,
         $invoiceRepo,
         $numberGenerator,
     );

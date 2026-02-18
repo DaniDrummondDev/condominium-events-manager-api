@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Tests\Traits;
 
 use App\Infrastructure\Persistence\Platform\Models\PlanModel;
+use App\Infrastructure\Persistence\Platform\Models\PlanPriceModel;
 use App\Infrastructure\Persistence\Platform\Models\PlanVersionModel;
 use DateTimeImmutable;
 use Domain\Billing\Entities\Invoice;
 use Domain\Billing\Entities\InvoiceItem;
 use Domain\Billing\Entities\Payment;
 use Domain\Billing\Entities\Plan;
+use Domain\Billing\Entities\PlanPrice;
 use Domain\Billing\Entities\PlanVersion;
 use Domain\Billing\Entities\Subscription;
 use Domain\Billing\Enums\BillingCycle;
@@ -30,20 +32,29 @@ trait CreatesBillingData
 
     protected function createPlanVersion(
         ?Uuid $planId = null,
-        int $priceInCents = 9900,
-        string $currency = 'BRL',
-        BillingCycle $billingCycle = BillingCycle::Monthly,
-        int $trialDays = 0,
     ): PlanVersion {
         return new PlanVersion(
             id: Uuid::generate(),
             planId: $planId ?? Uuid::generate(),
             version: 1,
-            price: new Money($priceInCents, $currency),
-            billingCycle: $billingCycle,
-            trialDays: $trialDays,
             status: PlanStatus::Active,
             createdAt: new DateTimeImmutable,
+        );
+    }
+
+    protected function createPlanPrice(
+        ?Uuid $planVersionId = null,
+        BillingCycle $billingCycle = BillingCycle::Monthly,
+        int $priceInCents = 9900,
+        string $currency = 'BRL',
+        int $trialDays = 0,
+    ): PlanPrice {
+        return new PlanPrice(
+            id: Uuid::generate(),
+            planVersionId: $planVersionId ?? Uuid::generate(),
+            billingCycle: $billingCycle,
+            price: new Money($priceInCents, $currency),
+            trialDays: $trialDays,
         );
     }
 
@@ -126,14 +137,19 @@ trait CreatesBillingData
             'id' => Uuid::generate()->value(),
             'plan_id' => $plan->id,
             'version' => 1,
-            'price' => $priceInCents / 100,
-            'currency' => 'BRL',
-            'billing_cycle' => 'monthly',
-            'trial_days' => 0,
             'status' => 'active',
             'created_at' => now(),
         ]);
 
-        return ['plan' => $plan, 'version' => $version];
+        $price = PlanPriceModel::query()->create([
+            'id' => Uuid::generate()->value(),
+            'plan_version_id' => $version->id,
+            'billing_cycle' => 'monthly',
+            'price' => $priceInCents / 100,
+            'currency' => 'BRL',
+            'trial_days' => 0,
+        ]);
+
+        return ['plan' => $plan, 'version' => $version, 'price' => $price];
     }
 }

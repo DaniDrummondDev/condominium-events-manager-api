@@ -207,10 +207,10 @@ POST /platform/plans
 {
   "name": "Premium",
   "slug": "premium",
-  "price": 59990,
-  "currency": "BRL",
-  "billing_cycle": "monthly",
-  "trial_days": 30,
+  "prices": [
+    { "billing_cycle": "monthly", "price": 59990, "currency": "BRL", "trial_days": 30 },
+    { "billing_cycle": "yearly", "price": 599900, "currency": "BRL", "trial_days": 30 }
+  ],
   "features": [
     { "key": "max_units", "value": "200", "type": "integer" },
     { "key": "max_spaces", "value": "50", "type": "integer" },
@@ -225,10 +225,10 @@ POST /platform/plans/{{plan_id}}/versions
 ```
 ```json
 {
-  "price": 69990,
-  "currency": "BRL",
-  "billing_cycle": "monthly",
-  "trial_days": 15,
+  "prices": [
+    { "billing_cycle": "monthly", "price": 69990, "currency": "BRL", "trial_days": 15 },
+    { "billing_cycle": "yearly", "price": 699900, "currency": "BRL", "trial_days": 15 }
+  ],
   "features": [
     { "key": "max_units", "value": "300", "type": "integer" }
   ]

@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Application\Billing\UseCases;
 
 use Application\Billing\Contracts\PlanFeatureRepositoryInterface;
+use Application\Billing\Contracts\PlanPriceRepositoryInterface;
 use Application\Billing\Contracts\PlanRepositoryInterface;
 use Application\Billing\Contracts\PlanVersionRepositoryInterface;
 use Application\Billing\DTOs\CreatePlanVersionDTO;
+use Application\Billing\DTOs\PlanPriceDTO;
 use Application\Billing\DTOs\PlanVersionDTO;
 use DateTimeImmutable;
 use Domain\Billing\Entities\PlanFeature;
+use Domain\Billing\Entities\PlanPrice;
 use Domain\Billing\Entities\PlanVersion;
 use Domain\Billing\Enums\BillingCycle;
 use Domain\Billing\Enums\FeatureType;
@@ -25,6 +28,7 @@ final readonly class CreatePlanVersion
         private PlanRepositoryInterface $planRepository,
         private PlanVersionRepositoryInterface $planVersionRepository,
         private PlanFeatureRepositoryInterface $planFeatureRepository,
+        private PlanPriceRepositoryInterface $planPriceRepository,
     ) {}
 
     public function execute(CreatePlanVersionDTO $dto): PlanVersionDTO
@@ -53,14 +57,27 @@ final readonly class CreatePlanVersion
             id: Uuid::generate(),
             planId: $planId,
             version: $nextVersion,
-            price: new Money($dto->priceInCents, $dto->currency),
-            billingCycle: BillingCycle::from($dto->billingCycle),
-            trialDays: $dto->trialDays,
             status: PlanStatus::Active,
             createdAt: new DateTimeImmutable,
         );
 
         $this->planVersionRepository->save($planVersion);
+
+        $planPrices = [];
+        foreach ($dto->prices as $priceData) {
+            $planPrice = new PlanPrice(
+                id: Uuid::generate(),
+                planVersionId: $planVersion->id(),
+                billingCycle: BillingCycle::from($priceData['billing_cycle']),
+                price: new Money($priceData['price_in_cents'], $priceData['currency'] ?? 'BRL'),
+                trialDays: $priceData['trial_days'] ?? 0,
+            );
+            $planPrices[] = $planPrice;
+        }
+
+        if ($planPrices !== []) {
+            $this->planPriceRepository->saveMany($planPrices);
+        }
 
         $features = [];
         foreach ($dto->features as $featureData) {
@@ -78,15 +95,20 @@ final readonly class CreatePlanVersion
             $this->planFeatureRepository->saveMany($features);
         }
 
+        $priceDTOs = array_map(fn (PlanPrice $p) => new PlanPriceDTO(
+            id: $p->id()->value(),
+            billingCycle: $p->billingCycle()->value,
+            priceInCents: $p->price()->amount(),
+            currency: $p->price()->currency(),
+            trialDays: $p->trialDays(),
+        ), $planPrices);
+
         return new PlanVersionDTO(
             id: $planVersion->id()->value(),
             version: $planVersion->version(),
-            priceInCents: $planVersion->price()->amount(),
-            currency: $planVersion->price()->currency(),
-            billingCycle: $planVersion->billingCycle()->value,
-            trialDays: $planVersion->trialDays(),
             status: $planVersion->status()->value,
             createdAt: $planVersion->createdAt()->format('c'),
+            prices: $priceDTOs,
         );
     }
 }
