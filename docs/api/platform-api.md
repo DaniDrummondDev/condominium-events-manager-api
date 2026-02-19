@@ -3,7 +3,7 @@
 ## Status do Documento
 
 **Status:** Ativo\
-**Ultima atualizacao:** 2026-02-10\
+**Ultima atualizacao:** 2026-02-19\
 **Versao da API:** v1
 
 ---
@@ -12,6 +12,7 @@
 
 1. [Visao Geral](#1-visao-geral)
 2. [Autenticacao (Platform Auth)](#2-autenticacao-platform-auth)
+- [Endpoints Publicos (Sem Autenticacao)](#endpoints-publicos-sem-autenticacao)
 3. [Tenants](#3-tenants)
 4. [Plans](#4-plans)
 5. [Subscriptions](#5-subscriptions)
@@ -346,6 +347,191 @@ Sem corpo de resposta.
 | Codigo | Erro              | Descricao                             |
 |--------|-------------------|---------------------------------------|
 | 401    | `UNAUTHENTICATED` | Token ausente, invalido ou expirado   |
+
+---
+
+## Endpoints Publicos (Sem Autenticacao)
+
+Endpoints acessiveis sem autenticacao. Utilizados no fluxo de onboarding e consulta publica.
+
+---
+
+### GET /api/v1/platform/public/plans
+
+Retorna a lista de planos ativos disponiveis para contratacao. Nao expoe IDs internos.
+
+- **Autenticacao:** Nenhuma
+- **Rate Limit:** 30 req/min por IP
+
+**Resposta de sucesso (200 OK):**
+
+```json
+{
+    "data": [
+        {
+            "name": "Basico",
+            "slug": "basico",
+            "prices": [
+                {
+                    "billing_cycle": "monthly",
+                    "price_in_cents": 9900,
+                    "currency": "BRL"
+                },
+                {
+                    "billing_cycle": "yearly",
+                    "price_in_cents": 99000,
+                    "currency": "BRL"
+                }
+            ],
+            "features": [
+                { "key": "max_units", "value": "50" },
+                { "key": "max_users", "value": "100" }
+            ]
+        }
+    ]
+}
+```
+
+**Campos retornados:**
+
+| Campo | Tipo | Descricao |
+|-------|------|-----------|
+| `name` | string | Nome do plano |
+| `slug` | string | Identificador publico do plano |
+| `prices` | array | Precos por ciclo de cobranca |
+| `prices[].billing_cycle` | string | `monthly` ou `yearly` |
+| `prices[].price_in_cents` | integer | Preco em centavos |
+| `prices[].currency` | string | Moeda (ex: `BRL`) |
+| `features` | array | Features incluidas no plano |
+
+**Observacao:** Campos internos como `id`, `status` e `current_version` **nao sao expostos**.
+
+---
+
+### POST /api/v1/platform/public/register
+
+Inicia o processo de registro de um novo condominio. Cria um `PendingRegistration` e envia email de verificacao ao administrador. **Nao cria o Tenant imediatamente** — o Tenant so sera criado apos verificacao do email.
+
+- **Autenticacao:** Nenhuma
+- **Rate Limit:** 5 req/min por IP
+
+**Request Body:**
+
+```json
+{
+    "condominium": {
+        "name": "Condominio Solar",
+        "slug": "condominio-solar",
+        "type": "vertical"
+    },
+    "admin": {
+        "name": "Joao Silva",
+        "email": "joao@email.com",
+        "password": "s3cur3P@ssw0rd",
+        "password_confirmation": "s3cur3P@ssw0rd"
+    },
+    "plan_slug": "basico"
+}
+```
+
+**Validacoes:**
+
+| Campo | Regras |
+|-------|--------|
+| `condominium.name` | obrigatorio, string, min 3, max 255 |
+| `condominium.slug` | obrigatorio, string, min 3, max 60, formato slug, unico em tenants e pending_registrations |
+| `condominium.type` | obrigatorio, enum: `horizontal`, `vertical`, `mixed` |
+| `admin.name` | obrigatorio, string, min 3, max 255 |
+| `admin.email` | obrigatorio, email valido, max 255 |
+| `admin.password` | obrigatorio, min 8, confirmado |
+| `admin.password_confirmation` | obrigatorio, deve ser igual a `admin.password` |
+| `plan_slug` | obrigatorio, deve ser um plano ativo |
+
+**Resposta de sucesso (202 Accepted):**
+
+```json
+{
+    "data": {
+        "slug": "condominio-solar",
+        "message": "Verifique seu email para continuar o cadastro."
+    }
+}
+```
+
+**Cenarios de Erro:**
+
+| Codigo | Erro | Descricao |
+|--------|------|-----------|
+| 422 | `VALIDATION_ERROR` | Campos invalidos (slug duplicado, tipo invalido, plano inexistente, senha fraca) |
+| 429 | `TOO_MANY_REQUESTS` | Rate limit excedido |
+
+**Seguranca:**
+- A senha eh hasheada com bcrypt antes de ser armazenada no `PendingRegistration`
+- O token de verificacao eh gerado com 64 bytes aleatorios e armazenado como hash SHA-256
+- O `PendingRegistration` expira em 24 horas se nao verificado
+
+---
+
+### GET /api/v1/platform/public/register/verify
+
+Verifica o token enviado por email e cria o Tenant. Inicia o processo de provisioning (criacao do banco de dados do tenant).
+
+- **Autenticacao:** Nenhuma (token via query parameter)
+
+**Query Parameters:**
+
+| Parametro | Tipo | Obrigatorio | Descricao |
+|-----------|------|-------------|-----------|
+| `token` | string | Sim | Token de verificacao recebido por email |
+
+**Exemplo de Requisicao:**
+
+```
+GET /api/v1/platform/public/register/verify?token=abc123...
+```
+
+**Resposta de sucesso (200 OK):**
+
+```json
+{
+    "data": {
+        "tenant_slug": "condominio-solar",
+        "status": "provisioning",
+        "message": "Email verificado com sucesso. Seu condominio esta sendo provisionado."
+    }
+}
+```
+
+**Cenarios de Erro:**
+
+| Codigo | Erro | Descricao |
+|--------|------|-----------|
+| 400 | `VERIFICATION_TOKEN_REQUIRED` | Parametro `token` ausente na query string |
+| 404 | `VERIFICATION_TOKEN_INVALID` | Token nao encontrado ou ja utilizado |
+| 409 | `TENANT_SLUG_ALREADY_EXISTS` | Slug ja foi registrado por outro tenant (race condition) |
+| 410 | `VERIFICATION_TOKEN_EXPIRED` | Token expirado (apos 24 horas) |
+
+**Fluxo Completo de Registro:**
+
+```
+1. POST /public/register
+   → Cria PendingRegistration + envia email de verificacao
+   → Retorna 202 Accepted
+       ↓
+2. Administrador clica no link do email
+       ↓
+3. GET /public/register/verify?token=xxx
+   → Valida token (existe, nao expirado, nao usado)
+   → Cria Tenant com status "provisioning"
+   → Dispatcha ProvisionTenantJob (cria database, migrations, admin)
+   → Retorna 200 OK
+       ↓
+4. ProvisionTenantJob (assincrono)
+   → Cria database PostgreSQL dedicado
+   → Executa migrations
+   → Cria usuario administrador (sindico)
+   → Atualiza Tenant para status "active"
+```
 
 ---
 
@@ -2899,6 +3085,9 @@ Quando servicos criticos estao indisponiveis:
 
 | Metodo   | Endpoint                                                            | Auth        | Roles                          |
 |----------|---------------------------------------------------------------------|-------------|--------------------------------|
+| `GET`    | `/api/v1/platform/public/plans`                                     | Nao         | Publico                        |
+| `POST`   | `/api/v1/platform/public/register`                                  | Nao         | Publico                        |
+| `GET`    | `/api/v1/platform/public/register/verify`                           | Nao         | Publico                        |
 | `POST`   | `/api/v1/auth/platform/login`                                       | Nao         | Publico                        |
 | `POST`   | `/api/v1/auth/platform/mfa/verify`                                  | mfa_token   | Publico                        |
 | `POST`   | `/api/v1/auth/token/refresh`                                        | refresh_token | Publico                      |

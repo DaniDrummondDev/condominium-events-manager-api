@@ -3,7 +3,7 @@
 ## Status do Documento
 
 **Status:** Ativo\
-**Ultima atualizacao:** 2026-02-10\
+**Ultima atualizacao:** 2026-02-19\
 **Versao da API:** v1\
 **Referencia:** [auth-flows.md](../security/auth-flows.md), [authorization-matrix.md](../security/authorization-matrix.md), [api-design-guidelines.md](../api/api-design-guidelines.md)
 
@@ -353,7 +353,114 @@ Se o usuario tem role que exige MFA e ainda nao configurou, o front-end deve:
 
 ---
 
-### 3.6 Registro de Morador (via Convite)
+### 3.6 Registro de Condominio (Self-Service)
+
+O registro de um novo condominio e um fluxo publico em 2 etapas: cadastro + verificacao de email.
+
+**Etapa 1 — Formulario de Registro**
+
+**Endpoint:** `POST /api/v1/platform/public/register`
+
+**Request:**
+
+```json
+{
+  "condominium": {
+    "name": "Condominio Solar",
+    "slug": "condominio-solar",
+    "type": "vertical"
+  },
+  "admin": {
+    "name": "Joao Silva",
+    "email": "joao@email.com",
+    "password": "s3cur3P@ssw0rd",
+    "password_confirmation": "s3cur3P@ssw0rd"
+  },
+  "plan_slug": "basico"
+}
+```
+
+**Validacao no front-end (antes de enviar):**
+
+| Campo | Regras |
+|-------|--------|
+| `condominium.name` | obrigatorio, min 3, max 255 chars |
+| `condominium.slug` | obrigatorio, min 3, max 60, formato slug (letras minusculas, numeros, hifens) |
+| `condominium.type` | obrigatorio, enum: `horizontal`, `vertical`, `mixed` |
+| `admin.name` | obrigatorio, min 3, max 255 chars |
+| `admin.email` | obrigatorio, email valido, max 255 chars |
+| `admin.password` | obrigatorio, min 8, ao menos 1 maiuscula, 1 minuscula, 1 numero |
+| `admin.password_confirmation` | obrigatorio, deve ser igual a password |
+| `plan_slug` | obrigatorio, selecionado da lista de planos publicos |
+
+**Gerar slug automaticamente:** Recomendado gerar o slug a partir do nome do condominio (kebab-case) com opcao de edicao manual.
+
+**Carregar planos disponiveis:** Antes de exibir o formulario, buscar planos com `GET /api/v1/platform/public/plans` para popular o seletor de planos.
+
+**Respostas:**
+
+| Codigo | Error Code | Acao no Front-End |
+|--------|------------|-------------------|
+| 202 | — | Exibir tela "Verifique seu email". Mostrar mensagem com o email do admin. |
+| 422 | `VALIDATION_ERROR` | Exibir erros por campo (slug duplicado, tipo invalido, plano inexistente) |
+| 429 | `TOO_MANY_REQUESTS` | "Muitas tentativas. Aguarde X segundos." |
+
+**Apos 202 Accepted:**
+- Exibir tela de confirmacao: "Enviamos um email de verificacao para {admin.email}"
+- Informar que o link expira em 24 horas
+- Oferecer opcao de reenvio (se implementado)
+- **NAO** redirecionar para login (o Tenant ainda nao existe)
+
+**Etapa 2 — Verificacao de Email**
+
+O administrador clica no link do email que aponta para:
+
+```
+GET /api/v1/platform/public/register/verify?token={verification_token}
+```
+
+O front-end pode interceptar este link para exibir uma tela de "verificando..." enquanto a API processa.
+
+**Respostas:**
+
+| Codigo | Error Code | Acao no Front-End |
+|--------|------------|-------------------|
+| 200 | — | Exibir "Email verificado! Seu condominio esta sendo configurado." Redirecionar para login apos alguns segundos. |
+| 400 | `VERIFICATION_TOKEN_REQUIRED` | "Link de verificacao invalido." |
+| 404 | `VERIFICATION_TOKEN_INVALID` | "Link de verificacao invalido ou ja utilizado." |
+| 409 | `TENANT_SLUG_ALREADY_EXISTS` | "Este condominio ja foi registrado." |
+| 410 | `VERIFICATION_TOKEN_EXPIRED` | "Link expirado. Faca um novo registro." Com link para formulario de registro. |
+
+**Fluxo visual completo:**
+
+```
+[Pagina de Registro]
+        |
+        v
+[Preenche formulario + seleciona plano]
+        |
+        v
+[POST /public/register → 202]
+        |
+        v
+[Tela: "Verifique seu email"]
+        |
+        v
+[Admin abre email e clica no link]
+        |
+        v
+[GET /public/register/verify?token=xxx → 200]
+        |
+        v
+[Tela: "Condominio sendo configurado!"]
+        |
+        v
+[Apos provisioning: Redirecionar para Login]
+```
+
+---
+
+### 3.7 Registro de Morador (via Convite)
 
 **Endpoint:** `POST /api/v1/tenant/auth/register`
 
@@ -407,9 +514,9 @@ O morador recebe um convite por email contendo um link com `invitation_token`. O
 
 ---
 
-### 3.7 Recuperacao de Senha
+### 3.8 Recuperacao de Senha
 
-#### 3.7.1 Solicitar Reset
+#### 3.8.1 Solicitar Reset
 
 **Endpoint (Plataforma):** `POST /api/v1/platform/auth/forgot-password`
 **Endpoint (Tenant):** `POST /api/v1/tenant/auth/forgot-password`
@@ -439,7 +546,7 @@ O morador recebe um convite por email contendo um link com `invitation_token`. O
 - **Nunca** alterar a mensagem baseado na resposta (sempre a mesma)
 - Redirecionar para tela de login apos exibir a mensagem
 
-#### 3.7.2 Executar Reset
+#### 3.8.2 Executar Reset
 
 **Endpoint (Plataforma):** `POST /api/v1/platform/auth/reset-password`
 **Endpoint (Tenant):** `POST /api/v1/tenant/auth/reset-password`
@@ -495,7 +602,7 @@ O usuario recebe um email com link contendo o token. O front-end deve:
 
 ---
 
-### 3.8 Logout
+### 3.9 Logout
 
 **Endpoint:** `POST /api/v1/{context}/auth/logout`
 
@@ -1230,6 +1337,6 @@ Todos os IDs sao **UUID v7** (ordenados por tempo). Nunca usar IDs sequenciais.
 
 | Campo | Valor |
 |-------|-------|
-| Ultima atualizacao | 2026-02-10 |
+| Ultima atualizacao | 2026-02-19 |
 | Versao | 1.0.0 |
 | Documentos de referencia | auth-flows.md, authorization-matrix.md, api-design-guidelines.md, tenant-api.md, platform-api.md |

@@ -3,7 +3,7 @@
 ## Status do Documento
 
 **Status:** Ativo\
-**Ultima atualizacao:** 2026-02-10\
+**Ultima atualizacao:** 2026-02-19\
 **Versao da API:** v1
 
 ---
@@ -22,7 +22,7 @@ O sistema utiliza **PostgreSQL** como banco de dados principal em produção, co
 │  features, tenant_feature_overrides, subscriptions,     │
 │  invoices, invoice_items, payments, dunning_policies,   │
 │  gateway_events, platform_users, tenant_admin_actions,  │
-│  platform_audit_logs                                    │
+│  platform_audit_logs, pending_registrations             │
 │                                                         │
 │  Conexão: Estática (.env principal)                     │
 └─────────────────────────────────────────────────────────┘
@@ -509,6 +509,46 @@ Logs de auditoria da plataforma. Tabela append-only.
 - `idx_pal_action` ON (`action`)
 
 **Particionamento:** Recomendado por mês em `created_at` para tabelas com alto volume.
+
+---
+
+### 2.18 pending_registrations
+
+Registros temporários de condomínios aguardando verificação de email. Armazena dados do futuro tenant até que o administrador confirme o email. Expira em 24 horas.
+
+| Coluna | Tipo | Nullable | Default | Descrição |
+|--------|------|----------|---------|-----------|
+| `id` | `UUID` | NOT NULL | `gen_random_uuid()` | Identificador único |
+| `slug` | `VARCHAR(60)` | NOT NULL | — | Slug do futuro condomínio |
+| `name` | `VARCHAR(255)` | NOT NULL | — | Nome do condomínio |
+| `type` | `VARCHAR(20)` | NOT NULL | — | `horizontal`, `vertical`, `mixed` |
+| `admin_name` | `VARCHAR(255)` | NOT NULL | — | Nome do administrador |
+| `admin_email` | `VARCHAR(255)` | NOT NULL | — | Email do administrador |
+| `admin_password_hash` | `VARCHAR(255)` | NOT NULL | — | Hash bcrypt da senha |
+| `admin_phone` | `VARCHAR(20)` | NULL | — | Telefone do administrador |
+| `plan_slug` | `VARCHAR(60)` | NOT NULL | — | Slug do plano selecionado |
+| `verification_token_hash` | `VARCHAR(64)` | NOT NULL | — | Hash SHA-256 do token de verificação |
+| `expires_at` | `TIMESTAMP` | NOT NULL | — | Data de expiração (24h após criação) |
+| `verified_at` | `TIMESTAMP` | NULL | — | Data de verificação (NULL = pendente) |
+| `created_at` | `TIMESTAMP` | NOT NULL | `NOW()` | Data de criação |
+| `updated_at` | `TIMESTAMP` | NOT NULL | `NOW()` | Última atualização |
+
+**Constraints:**
+- `PK`: `id`
+- `UNIQUE`: `verification_token_hash`
+- `CHECK`: `type IN ('horizontal', 'vertical', 'mixed')`
+
+**Índices:**
+- `idx_pr_slug` ON (`slug`)
+- `idx_pr_admin_email` ON (`admin_email`)
+- `idx_pr_expires_at` ON (`expires_at`)
+- `idx_pr_token_hash` UNIQUE ON (`verification_token_hash`)
+
+**Observações:**
+- Token de verificação armazenado como hash SHA-256 (token plain nunca persiste)
+- Senha do admin hasheada com bcrypt antes do armazenamento
+- Registros expirados são limpos periodicamente via job
+- Após verificação (`verified_at` preenchido), o registro não é mais consultado — o Tenant é criado
 
 ---
 
@@ -1659,7 +1699,7 @@ class FakeEmbeddingSearch implements EmbeddingSearchInterface
 
 ## 11. Contagem de Tabelas
 
-### 11.1 Banco da Plataforma: 16 tabelas
+### 11.1 Banco da Plataforma: 17 tabelas
 
 1. tenants
 2. platform_users
@@ -1677,6 +1717,7 @@ class FakeEmbeddingSearch implements EmbeddingSearchInterface
 14. dunning_policies
 15. gateway_events
 16. platform_audit_logs
+17. pending_registrations
 
 ### 11.2 Banco do Tenant: 27 tabelas
 
@@ -1708,7 +1749,7 @@ class FakeEmbeddingSearch implements EmbeddingSearchInterface
 26. ai_action_logs
 27. idempotency_keys
 
-**Total: 43 tabelas** (16 plataforma + 27 tenant)
+**Total: 44 tabelas** (17 plataforma + 27 tenant)
 
 ---
 
@@ -1718,6 +1759,6 @@ class FakeEmbeddingSearch implements EmbeddingSearchInterface
 
 | Campo | Valor |
 |-------|-------|
-| Última atualização | 2026-02-10 |
+| Última atualização | 2026-02-19 |
 | Versão | 1.0.0 |
 | Responsável | Equipe Backend |

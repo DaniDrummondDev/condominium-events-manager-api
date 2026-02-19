@@ -3,7 +3,7 @@
 ## Status do Documento
 
 **Status:** Ativo\
-**Ultima atualizacao:** 2026-02-10\
+**Ultima atualizacao:** 2026-02-19\
 **Versao da API:** v1
 
 ---
@@ -1040,6 +1040,207 @@ Content-Type: application/json
 | `password`               | obrigatorio, string, min 8, confirmado, mixed case + numeros |
 | `password_confirmation`  | obrigatorio, deve ser igual a password                     |
 | `tenant_slug`            | obrigatorio (somente contexto tenant), string, alpha_dash  |
+
+---
+
+### 2.10 Registro de Condominio (Self-Service com Verificacao de Email)
+
+O registro de novos condominios eh um fluxo publico (sem autenticacao) que exige verificacao de email antes de criar o Tenant e iniciar o provisionamento.
+
+#### 2.10.1 Submeter Registro
+
+**Endpoint:**
+
+```
+POST /api/v1/platform/public/register
+Content-Type: application/json
+```
+
+**Request Body:**
+
+```json
+{
+  "condominium": {
+    "name": "Condominio Solar",
+    "slug": "condominio-solar",
+    "type": "vertical"
+  },
+  "admin": {
+    "name": "Joao Silva",
+    "email": "joao@email.com",
+    "password": "s3cur3P@ssw0rd",
+    "password_confirmation": "s3cur3P@ssw0rd"
+  },
+  "plan_slug": "basico"
+}
+```
+
+**Fluxo Detalhado:**
+
+```
+1. Receber dados de registro (condominium + admin + plan_slug)
+2. Validar campos obrigatorios e formatos
+3. Verificar unicidade do slug:
+   ├── Buscar em tenants pelo slug
+   │   └── Se encontrado → 422 ("Slug ja esta em uso")
+   └── Buscar em pending_registrations ativos (nao expirados, nao verificados) pelo slug
+       └── Se encontrado → 422 ("Registro com este slug ja esta pendente de verificacao")
+4. Validar tipo do condominio (horizontal, vertical, mixed)
+   └── Se invalido → 422
+5. Validar plano:
+   ├── Buscar plano pelo slug
+   └── Verificar se plano esta ativo e disponivel
+       └── Se inexistente ou inativo → 422
+6. Gerar token de verificacao:
+   ├── Token: 64 bytes aleatorios (Str::random(64))
+   ├── Hash para armazenamento: hash('sha256', $plainToken)
+   └── Token plain enviado no email (NUNCA armazenado)
+7. Hashear senha do admin:
+   └── bcrypt($password) — armazenado no PendingRegistration
+8. Criar PendingRegistration:
+   ├── id: UUIDv7
+   ├── slug, name, type, admin_name, admin_email
+   ├── admin_password_hash: hash bcrypt
+   ├── plan_slug
+   ├── verification_token_hash: hash SHA-256 do token
+   └── expires_at: now() + 24 horas
+9. Enviar email de verificacao:
+   ├── Template: tenant-verification
+   ├── Destinatario: admin_email
+   ├── Dados: admin_name, condominium_name, verification_token (plain)
+   ├── Queue: notifications (assincrono)
+   └── Link: {app_url}/api/v1/platform/public/register/verify?token={plain_token}
+10. Retornar 202 Accepted com slug e mensagem de verificacao
+```
+
+**Resposta (202 Accepted):**
+
+```json
+{
+  "data": {
+    "slug": "condominio-solar",
+    "message": "Verifique seu email para continuar o cadastro."
+  }
+}
+```
+
+**Cenarios de Erro:**
+
+| Codigo | Erro | Descricao |
+|--------|------|-----------|
+| 422 | `VALIDATION_ERROR` | Campos invalidos |
+| 429 | `TOO_MANY_REQUESTS` | Rate limit excedido |
+
+**Seguranca:**
+- Senha hasheada com bcrypt antes de armazenar
+- Token de verificacao armazenado como hash SHA-256 (token plain nunca persiste)
+- PendingRegistration expira em 24 horas
+- Rate limit aplicado por IP para prevenir abuso
+- Nenhum Tenant ou database criado ate verificacao do email
+
+---
+
+#### 2.10.2 Verificar Email e Criar Tenant
+
+**Endpoint:**
+
+```
+GET /api/v1/platform/public/register/verify?token={verification_token}
+```
+
+**Fluxo Detalhado:**
+
+```
+1. Receber token via query parameter
+   └── Se ausente → 400 ("Token de verificacao obrigatorio")
+2. Hashear token recebido: hash('sha256', $token)
+3. Buscar pending_registration pelo verification_token_hash:
+   └── Filtro: verified_at IS NULL (nao permite reuso)
+       └── Se nao encontrado → 404 ("Token invalido")
+4. Validar expiracao:
+   └── Se expires_at < now() → 410 ("Token expirado")
+5. Re-validar unicidade do slug na tabela tenants:
+   └── Se slug ja existe → 409 ("Slug ja registrado") — protecao contra race condition
+6. Marcar pending_registration como verificado:
+   └── UPDATE verified_at = NOW()
+7. Criar Tenant:
+   ├── id: UUIDv7
+   ├── slug, name, type (do PendingRegistration)
+   ├── status: provisioning
+   └── config: { plan_slug, admin_name, admin_email, admin_password_hash, admin_phone }
+8. Iniciar provisionamento:
+   └── Despachar evento TenantCreated → Listener → ProvisionTenantJob
+9. Retornar 200 OK com tenant_slug e status
+```
+
+**Resposta (200 OK):**
+
+```json
+{
+  "data": {
+    "tenant_slug": "condominio-solar",
+    "status": "provisioning",
+    "message": "Email verificado com sucesso. Seu condominio esta sendo provisionado."
+  }
+}
+```
+
+**Cenarios de Erro:**
+
+| Codigo | Erro | Descricao |
+|--------|------|-----------|
+| 400 | `VERIFICATION_TOKEN_REQUIRED` | Token ausente na query string |
+| 404 | `VERIFICATION_TOKEN_INVALID` | Token nao encontrado ou ja utilizado |
+| 409 | `TENANT_SLUG_ALREADY_EXISTS` | Slug ja registrado (race condition) |
+| 410 | `VERIFICATION_TOKEN_EXPIRED` | Token expirado (apos 24 horas) |
+
+**Seguranca:**
+- Token validado por hash SHA-256, nao por comparacao direta
+- Token nao pode ser reutilizado (verified_at marca uso)
+- Unicidade do slug re-validada no momento da criacao (unique constraint + check)
+- Provisionamento eh assincrono (nao bloqueia a resposta)
+
+---
+
+#### 2.10.3 Diagrama de Sequencia — Registro Self-Service
+
+```
+Visitante          API                    DB (Platform)         Email Service
+    |                |                         |                      |
+    |--POST /register-->                       |                      |
+    |                |--validate slug---------->|                      |
+    |                |<--slug available---------|                      |
+    |                |--validate plan---------->|                      |
+    |                |<--plan active------------|                      |
+    |                |--hash password           |                      |
+    |                |--generate token          |                      |
+    |                |--hash token (SHA-256)    |                      |
+    |                |--save pending----------->|                      |
+    |                |<--saved------------------|                      |
+    |                |--send verification email-|--------------------->|
+    |<--202 Accepted-|                         |                      |
+    |                |                         |                      |
+    |  (Clica no link do email)                |                      |
+    |                |                         |                      |
+    |--GET /verify?token=xxx-->                |                      |
+    |                |--hash token (SHA-256)    |                      |
+    |                |--find by token hash----->|                      |
+    |                |<--pending found----------|                      |
+    |                |--check expiration        |                      |
+    |                |--re-check slug---------->|                      |
+    |                |<--slug still available---|                      |
+    |                |--mark verified---------->|                      |
+    |                |--create tenant---------->|                      |
+    |                |<--tenant created---------|                      |
+    |                |--dispatch TenantCreated  |                      |
+    |<--200 OK-------|                         |                      |
+    |                |                         |                      |
+    |                |  (Async) ProvisionTenantJob                    |
+    |                |--create database-------->|                      |
+    |                |--run migrations--------->|                      |
+    |                |--create admin (sindico)->|                      |
+    |                |--update status: active-->|                      |
+```
 
 ---
 
@@ -2348,6 +2549,8 @@ INVITATION_TTL=604800      # 7 dias em segundos
 | **Tenant Context**       | Objeto que contem informacoes do tenant resolvido para a requisicao atual   |
 | **Grant Type**           | Tipo de concessao OAuth que define como o cliente obtem tokens              |
 | **Client Credentials**   | Grant type usado para autenticacao service-to-service sem usuario humano    |
+| **PendingRegistration** | Registro temporario criado durante o self-service. Armazena dados do futuro tenant ate verificacao do email |
+| **Verification Token**  | Token de 64 bytes usado para verificar o email do administrador durante o registro self-service |
 | **Bcrypt**               | Algoritmo de hash de senha adaptativo com custo configuravel                |
 
 ---

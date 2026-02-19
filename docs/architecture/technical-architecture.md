@@ -184,6 +184,24 @@ Use Case → Domain Event → Event Handler → Job (se assíncrono)
 - Falhas vão para DLQ
 - Todo evento carrega `tenant_id`, `correlation_id`, `trace_id`
 
+### 5.3 Filas (Queues)
+
+O sistema utiliza Redis como driver de filas com as seguintes queues prioritárias:
+
+| Fila | Prioridade | Uso |
+|------|-----------|-----|
+| `tenant-provisioning` | Alta | Criação de databases e provisionamento de tenants |
+| `notifications` | Média | Emails de verificação, convites, notificações |
+| `default` | Normal | Jobs genéricos e tarefas em background |
+
+**Worker:** O worker processa filas por prioridade:
+
+```
+php artisan queue:work redis --queue=tenant-provisioning,notifications,default
+```
+
+**Infraestrutura Docker:** O worker roda como serviço dedicado (`condominium-worker`) no `docker-compose.yml`, separado do PHP-FPM que serve a API.
+
 ---
 
 ## 6. Multi-Tenancy

@@ -197,6 +197,102 @@
 
 ---
 
+### UC-67: RegisterTenant (Self-Service)
+
+| Campo | Descricao |
+|-------|-----------|
+| **Nome** | RegisterTenant |
+| **Contexto** | Tenant Management (Platform Domain) |
+| **Ator** | Visitante (futuro sindico/administradora) |
+
+**Pre-condicoes:**
+- Nenhuma autenticacao necessaria (endpoint publico)
+- Dados do condominio e do administrador informados
+- Plano selecionado ativo e disponivel
+
+**Fluxo principal:**
+1. Visitante submete dados de registro (nome do condominio, slug, tipo, dados do admin, plano)
+2. Sistema valida unicidade do slug na tabela `tenants`
+3. Sistema valida unicidade do slug na tabela `pending_registrations` (nao expirados)
+4. Sistema valida tipo do condominio (horizontal, vertical, mixed)
+5. Sistema valida existencia e disponibilidade do plano selecionado
+6. Sistema gera token de verificacao (64 bytes aleatorios)
+7. Sistema hasheia o token com SHA-256 para armazenamento
+8. Sistema hasheia a senha do admin com bcrypt
+9. Sistema cria registro em `pending_registrations` com TTL de 24 horas
+10. Sistema envia email de verificacao ao admin com o token em texto plano
+11. Sistema retorna `PendingRegistrationDTO` (sem dados sensiveis)
+
+**Pos-condicoes:**
+- Registro pendente criado com expiracao de 24 horas
+- Email de verificacao enviado ao administrador
+- Nenhum Tenant criado (aguarda verificacao)
+- Senha armazenada como hash bcrypt
+- Token armazenado como hash SHA-256
+
+**Cenarios de erro:**
+- Slug ja existe em `tenants`: retorna erro `TENANT_SLUG_ALREADY_EXISTS`
+- Slug ja existe em `pending_registrations` ativo: retorna erro `REGISTRATION_SLUG_PENDING`
+- Tipo de condominio invalido: retorna erro `INVALID_CONDOMINIUM_TYPE`
+- Plano inexistente ou inativo: retorna erro `PLAN_NOT_AVAILABLE`
+- Validacao de campos falha: retorna erro `VALIDATION_ERROR`
+
+**Regras de negocio aplicaveis:**
+- RN-175: Slug deve ser unico tanto em `tenants` quanto em `pending_registrations` ativos
+- RN-176: Token de verificacao nunca eh armazenado em texto plano (somente hash SHA-256)
+- RN-177: Senha do admin eh hasheada com bcrypt antes do armazenamento
+- RN-178: PendingRegistration expira em 24 horas se nao verificado
+- RN-179: PendingRegistration NAO eh entidade de dominio (conceito de workflow/infraestrutura)
+
+---
+
+### UC-68: VerifyRegistration
+
+| Campo | Descricao |
+|-------|-----------|
+| **Nome** | VerifyRegistration |
+| **Contexto** | Tenant Management (Platform Domain) |
+| **Ator** | Visitante (via link do email) |
+
+**Pre-condicoes:**
+- Token de verificacao valido recebido via query parameter
+- PendingRegistration associado ao token existente e nao expirado
+
+**Fluxo principal:**
+1. Visitante acessa link de verificacao com token
+2. Sistema hasheia o token recebido com SHA-256
+3. Sistema busca `pending_registration` pelo hash do token
+4. Sistema valida que o registro nao esta expirado (`expires_at > now`)
+5. Sistema valida que o registro nao foi verificado anteriormente (`verified_at IS NULL`)
+6. Sistema re-valida unicidade do slug na tabela `tenants` (protecao contra race condition)
+7. Sistema marca `pending_registration` como verificado (`verified_at = now`)
+8. Sistema cria Tenant com status `provisioning`
+9. Sistema salva configuracao do tenant (tipo, plano)
+10. Sistema inicia provisionamento (startProvisioning)
+11. Sistema despacha evento `TenantCreated`
+12. Listener despacha `ProvisionTenantJob` para fila assincrona
+
+**Pos-condicoes:**
+- PendingRegistration marcado como verificado
+- Tenant criado com status `provisioning`
+- `ProvisionTenantJob` despachado
+- Database do tenant sera provisionado assincronamente
+- Apos provisionamento: Tenant fica `active`, admin (sindico) criado
+
+**Cenarios de erro:**
+- Token nao encontrado (hash nao corresponde): retorna erro `VERIFICATION_TOKEN_INVALID`
+- Token expirado (apos 24 horas): retorna erro `VERIFICATION_TOKEN_EXPIRED`
+- Token ja utilizado (verified_at preenchido): retorna erro `VERIFICATION_TOKEN_INVALID`
+- Slug ja tomado por outro tenant (race condition): retorna erro `TENANT_SLUG_ALREADY_EXISTS`
+
+**Regras de negocio aplicaveis:**
+- RN-180: Token eh validado por hash SHA-256, nao por comparacao direta
+- RN-181: Unicidade do slug eh re-validada no momento da verificacao (race condition)
+- RN-182: Provisionamento eh assincrono e idempotente
+- RN-183: Tenant so eh criado apos verificacao de email bem-sucedida
+
+---
+
 ## 2. Platform Domain — Billing
 
 ### UC-05: CreateSubscription
@@ -2530,85 +2626,88 @@
 - **FU** = Funcionario/Portaria
 - **RE** = Resident (via convite)
 - **AI** = AI Assistant
+- **VI** = Visitante (nao autenticado)
 
-| # | Caso de Uso | PA | SY | SI | AD | CO | FU | RE | AI |
-|---|-------------|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-| **Tenant Management** | | | | | | | | | |
-| 01 | ProvisionTenant | X | | | | | | | |
-| 02 | SuspendTenant | X | X | | | | | | |
-| 03 | CancelTenant | X | | X | | | | | |
-| 04 | ReactivateTenant | X | | | | | | | |
-| **Billing** | | | | | | | | | |
-| 05 | CreateSubscription | | X | | | | | | |
-| 06 | RenewSubscription | | X | | | | | | |
-| 07 | CancelSubscription | X | | X | | | | | |
-| 08 | ChangeSubscriptionPlan | | | X | | | | | |
-| 09 | GenerateInvoice | | X | | | | | | |
-| 10 | ProcessPayment | | X | | | | | | |
-| 11 | ProcessDunning | | X | | | | | | |
-| 12 | IssueRefund | X | | | | | | | |
-| **Platform Admin** | | | | | | | | | |
-| 13 | ManagePlans | X | | | | | | | |
-| 14 | ManageFeatureFlags | X | | | | | | | |
-| 15 | ViewTenantDashboard | X | | | | | | | |
-| **Units & Residents** | | | | | | | | | |
-| 16 | CreateBlock | | | X | X | | | | |
-| 17 | CreateUnit | | | X | X | | | | |
-| 18 | DeactivateUnit | | | X | X | | | | |
-| 19 | InviteResident | | | X | X | | | | |
-| 20 | ActivateResident | | | | | | | X | |
-| 21 | DeactivateResident | | | X | X | | | | |
-| 22 | TransferUnit | | | X | X | | | | |
-| **Spaces Management** | | | | | | | | | |
-| 23 | CreateSpace | | | X | X | | | | |
-| 24 | UpdateSpace | | | X | X | | | | |
-| 25 | SetSpaceAvailability | | | X | X | | | | |
-| 26 | BlockSpace | | | X | X | | | | |
-| 27 | DeactivateSpace | | | X | X | | | | |
-| 28 | ConfigureSpaceRules | | | X | X | | | | |
-| **Reservations (CORE)** | | | | | | | | | |
-| 29 | CreateReservation | | | | | X | | | |
-| 30 | ApproveReservation | | | X | X | | | | |
-| 31 | RejectReservation | | | X | X | | | | |
-| 32 | CancelReservation | | | X | | X | | | |
-| 33 | CompleteReservation | | X | X | | | | | |
-| 34 | MarkAsNoShow | | | X | | | X | | |
-| 35 | ListAvailableSlots | | | | | X | | | |
-| **Governance** | | | | | | | | | |
-| 36 | RegisterViolation | | X | X | X | | | | |
-| 37 | ConfirmViolation | | | X | | | | | |
-| 38 | DismissViolation | | | X | | | | | |
-| 39 | ContestViolation | | | | | X | | | |
-| 40 | ReviewContestation | | | X | | | | | |
-| 41 | ApplyPenalty | | X | | | | | | |
-| 42 | RevokePenalty | | | X | | | | | |
-| 43 | ConfigurePenaltyPolicy | | | X | X | | | | |
-| 62 | UploadCondominiumDocument | | | X | X | | | | |
-| 63 | ParseDocumentSections | | X | X | X | | | | |
-| 64 | ActivateCondominiumDocument | | | X | | | | | |
-| 65 | SearchDocumentSections | | | X | X | X | | | X |
-| 66 | ViewDocumentVersionHistory | | | X | X | | | | |
-| **People Control** | | | | | | | | | |
-| 44 | RegisterGuest | | | | | X | | | |
-| 45 | CheckInGuest | | | | | | X | | |
-| 46 | CheckOutGuest | | | | | | X | | |
-| 47 | DenyGuestAccess | | | | | | X | | |
-| 48 | RegisterServiceProvider | | | X | X | | | | |
-| 49 | ScheduleServiceProviderVisit | | | X | | X | | | |
-| 50 | CheckInServiceProvider | | | | | | X | | |
-| 51 | CheckOutServiceProvider | | | | | | X | | |
-| **Communication** | | | | | | | | | |
-| 52 | PublishAnnouncement | | | X | X | | | | |
-| 53 | MarkAnnouncementAsRead | | | | | X | | | |
-| 54 | ArchiveAnnouncement | | | X | X | | | | |
-| 55 | CreateSupportRequest | | | | | X | | | |
-| 56 | ReplySupportRequest | | | X | | X | | | |
-| 57 | ResolveSupportRequest | | | X | | | | | |
-| 58 | CloseSupportRequest | | X | X | | | | | |
-| **AI** | | | | | | | | | |
-| 59 | ProcessConversation | | | X | | X | | | |
-| 60 | GenerateEmbedding | | X | | | | | | |
-| 61 | SemanticSearch | | X | | | | | | X |
+| # | Caso de Uso | PA | SY | SI | AD | CO | FU | RE | AI | VI |
+|---|-------------|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| **Tenant Management** | | | | | | | | | | |
+| 01 | ProvisionTenant | X | | | | | | | | |
+| 02 | SuspendTenant | X | X | | | | | | | |
+| 03 | CancelTenant | X | | X | | | | | | |
+| 04 | ReactivateTenant | X | | | | | | | | |
+| 67 | RegisterTenant (Self-Service) | | | | | | | | | X |
+| 68 | VerifyRegistration | | | | | | | | | X |
+| **Billing** | | | | | | | | | | |
+| 05 | CreateSubscription | | X | | | | | | | |
+| 06 | RenewSubscription | | X | | | | | | | |
+| 07 | CancelSubscription | X | | X | | | | | | |
+| 08 | ChangeSubscriptionPlan | | | X | | | | | | |
+| 09 | GenerateInvoice | | X | | | | | | | |
+| 10 | ProcessPayment | | X | | | | | | | |
+| 11 | ProcessDunning | | X | | | | | | | |
+| 12 | IssueRefund | X | | | | | | | | |
+| **Platform Admin** | | | | | | | | | | |
+| 13 | ManagePlans | X | | | | | | | | |
+| 14 | ManageFeatureFlags | X | | | | | | | | |
+| 15 | ViewTenantDashboard | X | | | | | | | | |
+| **Units & Residents** | | | | | | | | | | |
+| 16 | CreateBlock | | | X | X | | | | | |
+| 17 | CreateUnit | | | X | X | | | | | |
+| 18 | DeactivateUnit | | | X | X | | | | | |
+| 19 | InviteResident | | | X | X | | | | | |
+| 20 | ActivateResident | | | | | | | X | | |
+| 21 | DeactivateResident | | | X | X | | | | | |
+| 22 | TransferUnit | | | X | X | | | | | |
+| **Spaces Management** | | | | | | | | | | |
+| 23 | CreateSpace | | | X | X | | | | | |
+| 24 | UpdateSpace | | | X | X | | | | | |
+| 25 | SetSpaceAvailability | | | X | X | | | | | |
+| 26 | BlockSpace | | | X | X | | | | | |
+| 27 | DeactivateSpace | | | X | X | | | | | |
+| 28 | ConfigureSpaceRules | | | X | X | | | | | |
+| **Reservations (CORE)** | | | | | | | | | | |
+| 29 | CreateReservation | | | | | X | | | | |
+| 30 | ApproveReservation | | | X | X | | | | | |
+| 31 | RejectReservation | | | X | X | | | | | |
+| 32 | CancelReservation | | | X | | X | | | | |
+| 33 | CompleteReservation | | X | X | | | | | | |
+| 34 | MarkAsNoShow | | | X | | | X | | | |
+| 35 | ListAvailableSlots | | | | | X | | | | |
+| **Governance** | | | | | | | | | | |
+| 36 | RegisterViolation | | X | X | X | | | | | |
+| 37 | ConfirmViolation | | | X | | | | | | |
+| 38 | DismissViolation | | | X | | | | | | |
+| 39 | ContestViolation | | | | | X | | | | |
+| 40 | ReviewContestation | | | X | | | | | | |
+| 41 | ApplyPenalty | | X | | | | | | | |
+| 42 | RevokePenalty | | | X | | | | | | |
+| 43 | ConfigurePenaltyPolicy | | | X | X | | | | | |
+| 62 | UploadCondominiumDocument | | | X | X | | | | | |
+| 63 | ParseDocumentSections | | X | X | X | | | | | |
+| 64 | ActivateCondominiumDocument | | | X | | | | | | |
+| 65 | SearchDocumentSections | | | X | X | X | | | X | |
+| 66 | ViewDocumentVersionHistory | | | X | X | | | | | |
+| **People Control** | | | | | | | | | | |
+| 44 | RegisterGuest | | | | | X | | | | |
+| 45 | CheckInGuest | | | | | | X | | | |
+| 46 | CheckOutGuest | | | | | | X | | | |
+| 47 | DenyGuestAccess | | | | | | X | | | |
+| 48 | RegisterServiceProvider | | | X | X | | | | | |
+| 49 | ScheduleServiceProviderVisit | | | X | | X | | | | |
+| 50 | CheckInServiceProvider | | | | | | X | | | |
+| 51 | CheckOutServiceProvider | | | | | | X | | | |
+| **Communication** | | | | | | | | | | |
+| 52 | PublishAnnouncement | | | X | X | | | | | |
+| 53 | MarkAnnouncementAsRead | | | | | X | | | | |
+| 54 | ArchiveAnnouncement | | | X | X | | | | | |
+| 55 | CreateSupportRequest | | | | | X | | | | |
+| 56 | ReplySupportRequest | | | X | | X | | | | |
+| 57 | ResolveSupportRequest | | | X | | | | | | |
+| 58 | CloseSupportRequest | | X | X | | | | | | |
+| **AI** | | | | | | | | | | |
+| 59 | ProcessConversation | | | X | | X | | | | |
+| 60 | GenerateEmbedding | | X | | | | | | | |
+| 61 | SemanticSearch | | X | | | | | | X | |
 
 ### Resumo por Ator
 
@@ -2622,6 +2721,7 @@
 | Funcionario (FU) | 6 |
 | Resident (RE) | 1 |
 | AI (AI) | 1 |
+| Visitante (VI) | 2 |
 
 ---
 
@@ -2770,7 +2870,66 @@
 
 ---
 
-### 12.3 Fluxo de Onboarding (Provisionamento -> Unidade -> Morador -> Ativacao)
+### 12.3 Fluxo de Registro Self-Service (Cadastro ate Provisioning)
+
+```
+                    Visitante submete formulario de registro
+                                   |
+                                   v
+                    +-----------------------------+
+                    |      RegisterTenant          |
+                    |  (UC-67 -- 5 validacoes)     |
+                    +-----------------------------+
+                                   |
+                                   v
+                    +-----------------------------+
+                    | PendingRegistration criado   |
+                    | Email de verificacao enviado |
+                    +-----------------------------+
+                                   |
+                          [24h para verificar]
+                                   |
+                     +-------------+-------------+
+                     |                           |
+                     v                           v
+            [Clica no link]             [Nao verifica]
+                     |                           |
+                     v                           v
+          +-------------------+        +------------------+
+          | VerifyRegistration|        | Registro expira  |
+          |     (UC-68)       |        | (cleanup job)    |
+          +-------------------+        +------------------+
+                     |
+                     v
+          +-------------------+
+          | Tenant criado     |
+          | status:provisioning|
+          +-------------------+
+                     |
+                     v
+          +-------------------+
+          | ProvisionTenantJob |
+          | (UC-01 parcial)   |
+          +-------------------+
+                     |
+                     v
+          +-------------------+
+          | Tenant ativo      |
+          | Admin (sindico)   |
+          | criado            |
+          +-------------------+
+```
+
+**Observacoes do fluxo:**
+- RegisterTenant (UC-67) valida slug em 2 tabelas (tenants + pending_registrations)
+- Token de verificacao tem TTL de 24 horas
+- VerifyRegistration (UC-68) re-valida unicidade do slug para proteger contra race conditions
+- Provisionamento reutiliza a infraestrutura existente (ProvisionTenantJob)
+- Registros nao verificados sao limpos periodicamente
+
+---
+
+### 12.4 Fluxo de Onboarding (Provisionamento -> Unidade -> Morador -> Ativacao)
 
 ```
      PlatformAdmin cria tenant
