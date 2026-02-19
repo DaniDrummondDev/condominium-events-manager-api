@@ -6,7 +6,7 @@ declare(strict_types=1);
  * Tenant API Routes
  *
  * Rotas do tenant (espacos, reservas, governanca, comunicacao).
- * Prefix: /tenant
+ * Prefix: /api/v1/tenant
  * Auth: Tenant JWT + ResolveTenantMiddleware + EnsureTenantActive
  */
 

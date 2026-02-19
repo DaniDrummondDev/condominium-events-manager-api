@@ -37,6 +37,18 @@ class EloquentPlanRepository implements PlanRepositoryInterface
             ->all();
     }
 
+    /**
+     * @return array<Plan>
+     */
+    public function findAllActive(): array
+    {
+        return PlanModel::query()
+            ->where('status', PlanStatus::Active->value)
+            ->get()
+            ->map(fn (PlanModel $model) => $this->toDomain($model))
+            ->all();
+    }
+
     public function save(Plan $plan): void
     {
         PlanModel::query()->updateOrCreate(

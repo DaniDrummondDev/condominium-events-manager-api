@@ -6,7 +6,7 @@ declare(strict_types=1);
  * Webhook Routes
  *
  * Rotas de webhooks (billing/payment gateway, integracoes externas).
- * Prefix: /webhook
+ * Prefix: /api/v1/webhook
  * Auth: Webhook signature verification (sem JWT)
  */
 

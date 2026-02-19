@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Infrastructure\Auth\AuthenticatedUser;
+use App\Infrastructure\EventListeners\DispatchProvisionTenantJob;
 use App\Infrastructure\EventListeners\InvalidateDashboardCache;
 use App\Infrastructure\EventListeners\InvalidateSpaceAvailabilityCache;
 use Domain\Reservation\Events\ReservationCanceled;
 use Domain\Reservation\Events\ReservationConfirmed;
 use Domain\Reservation\Events\ReservationRequested;
+use Domain\Tenant\Events\TenantCreated;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
@@ -61,6 +63,10 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(30)->by($userId ?? ($request->ip() ?? 'unknown'));
         });
 
+        RateLimiter::for('public-api', function (Request $request) {
+            return Limit::perMinute(60)->by($request->ip() ?? 'unknown');
+        });
+
         RateLimiter::for('ai', function (Request $request) {
             $tenantId = $this->extractTenantId($request);
             $userId = $this->extractUserId($request);
@@ -86,6 +92,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Dashboard: all reservation events (uses only tenantId from context)
         Event::listen($reservationEvents, InvalidateDashboardCache::class);
+
+        // Tenant provisioning: dispatch job when tenant is created
+        Event::listen(TenantCreated::class, DispatchProvisionTenantJob::class);
     }
 
     private function extractTenantId(Request $request): ?string

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Infrastructure\Notifications;
 
 use App\Infrastructure\Notifications\Mails\ResidentInvitationMail;
+use App\Infrastructure\Notifications\Mails\TenantVerificationMail;
 use Application\Shared\Contracts\NotificationServiceInterface;
 use Illuminate\Support\Facades\Mail;
 
@@ -21,6 +22,7 @@ class EmailNotificationAdapter implements NotificationServiceInterface
 
         $mailable = match ($template) {
             'resident-invitation' => new ResidentInvitationMail($data),
+            'tenant-verification' => new TenantVerificationMail($data),
             default => null,
         };
 

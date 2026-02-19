@@ -24,4 +24,9 @@ interface TenantRepositoryInterface
      * @return array<Tenant>
      */
     public function findAllForMigration(): array;
+
+    /**
+     * @param array<string, mixed>|null $config
+     */
+    public function saveConfig(Uuid $id, ?array $config): void;
 }

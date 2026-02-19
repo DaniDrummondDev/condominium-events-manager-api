@@ -14,15 +14,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
         then: function () {
             Route::middleware('api')
-                ->prefix('platform')
+                ->prefix('api/v1/platform')
                 ->group(base_path('routes/platform.php'));
 
             Route::middleware('api')
-                ->prefix('tenant')
+                ->prefix('api/v1/tenant')
                 ->group(base_path('routes/tenant.php'));
 
             Route::middleware('api')
-                ->prefix('webhook')
+                ->prefix('api/v1/webhook')
                 ->group(base_path('routes/webhook.php'));
         },
     )

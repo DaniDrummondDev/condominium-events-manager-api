@@ -18,7 +18,7 @@
       "name": "Base Environment",
       "parentId": "wrk_condominium",
       "data": {
-        "base_url": "http://localhost:8000",
+        "base_url": "http://localhost:8000/api/v1",
         "platform_access_token": "",
         "tenant_access_token": "",
         "refresh_token": "",
@@ -83,6 +83,65 @@
       "_type": "request_group",
       "name": "Tenant Auth",
       "parentId": "fld_auth"
+    },
+    {
+      "_id": "fld_public",
+      "_type": "request_group",
+      "name": "Public API (No Auth)",
+      "parentId": "wrk_condominium"
+    },
+    {
+      "_id": "req_public_plans",
+      "_type": "request",
+      "name": "List Plans (Public)",
+      "method": "GET",
+      "url": "{{ _.base_url }}/platform/public/plans",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "body": {},
+      "parentId": "fld_public"
+    },
+    {
+      "_id": "req_public_register",
+      "_type": "request",
+      "name": "Register Tenant (Public)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/platform/public/register",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"condominium\": {\n    \"name\": \"Condomínio Solar\",\n    \"slug\": \"condominio-solar\",\n    \"type\": \"vertical\"\n  },\n  \"admin\": {\n    \"name\": \"João Silva\",\n    \"email\": \"joao@email.com\",\n    \"password\": \"secret1234\",\n    \"password_confirmation\": \"secret1234\",\n    \"phone\": \"11999999999\"\n  },\n  \"plan_slug\": \"basico\"\n}"
+      },
+      "parentId": "fld_public"
+    },
+    {
+      "_id": "req_public_verify_registration",
+      "_type": "request",
+      "name": "Verify Registration (Public)",
+      "description": "Verifica o email do síndico e inicia o provisioning do tenant. O token é enviado por email após o registro.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/platform/public/register/verify?token=PASTE_TOKEN_FROM_EMAIL_HERE",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "body": {},
+      "parentId": "fld_public"
     },
     {
       "_id": "fld_platform",

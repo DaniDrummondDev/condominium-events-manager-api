@@ -71,6 +71,29 @@ services:
       timeout: 5s
       retries: 5
 
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        user: www
+        uid: ${HOST_UID:-1000}
+    container_name: condominium-worker
+    restart: unless-stopped
+    working_dir: /var/www
+    command: php artisan queue:work redis --queue=tenant-provisioning,notifications,default --sleep=3 --tries=3 --backoff=30 --max-time=3600
+    volumes:
+      - ./:/var/www
+    networks:
+      - condominium
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      app:
+        condition: service_started
+
   mailpit:
     image: axllent/mailpit:latest
     container_name: condominium-mailpit

@@ -51,7 +51,7 @@ function createUserAndRefreshToken(): array
 test('refresh token returns new access and refresh tokens', function () {
     [$userId, $rawToken] = createUserAndRefreshToken();
 
-    $response = $this->postJson('/platform/auth/refresh', [
+    $response = $this->postJson('/api/v1/platform/auth/refresh', [
         'refresh_token' => $rawToken,
     ]);
 
@@ -67,7 +67,7 @@ test('refresh token returns new access and refresh tokens', function () {
 });
 
 test('refresh with invalid token returns 401', function () {
-    $response = $this->postJson('/platform/auth/refresh', [
+    $response = $this->postJson('/api/v1/platform/auth/refresh', [
         'refresh_token' => 'invalid-token-value',
     ]);
 
@@ -75,7 +75,7 @@ test('refresh with invalid token returns 401', function () {
 });
 
 test('refresh validates required fields', function () {
-    $response = $this->postJson('/platform/auth/refresh', []);
+    $response = $this->postJson('/api/v1/platform/auth/refresh', []);
 
     $response->assertStatus(422)
         ->assertJsonValidationErrors(['refresh_token']);
@@ -84,7 +84,7 @@ test('refresh validates required fields', function () {
 test('refresh token rotation marks old token as used', function () {
     [$userId, $rawToken] = createUserAndRefreshToken();
 
-    $this->postJson('/platform/auth/refresh', [
+    $this->postJson('/api/v1/platform/auth/refresh', [
         'refresh_token' => $rawToken,
     ]);
 
@@ -99,12 +99,12 @@ test('reusing an already-used refresh token returns 401', function () {
     [$userId, $rawToken] = createUserAndRefreshToken();
 
     // First use: should succeed
-    $this->postJson('/platform/auth/refresh', [
+    $this->postJson('/api/v1/platform/auth/refresh', [
         'refresh_token' => $rawToken,
     ])->assertStatus(200);
 
     // Second use: reuse detected, should fail
-    $response = $this->postJson('/platform/auth/refresh', [
+    $response = $this->postJson('/api/v1/platform/auth/refresh', [
         'refresh_token' => $rawToken,
     ]);
 

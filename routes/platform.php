@@ -6,7 +6,7 @@ declare(strict_types=1);
  * Platform API Routes
  *
  * Rotas da plataforma (admin, billing, tenant management).
- * Prefix: /platform
+ * Prefix: /api/v1/platform
  * Auth: Platform JWT (platform_owner, platform_admin)
  */
 
@@ -18,7 +18,10 @@ use App\Interface\Http\Controllers\Platform\InvoiceController;
 use App\Interface\Http\Controllers\Platform\PaymentController;
 use App\Interface\Http\Controllers\Platform\PlanController;
 use App\Interface\Http\Controllers\Platform\PlanVersionController;
+use App\Interface\Http\Controllers\Platform\PublicPlanController;
+use App\Interface\Http\Controllers\Platform\RegisterTenantController;
 use App\Interface\Http\Controllers\Platform\SubscriptionController;
+use App\Interface\Http\Controllers\Platform\VerifyRegistrationController;
 use App\Interface\Http\Controllers\Platform\TenantFeatureOverrideController;
 use App\Interface\Http\Controllers\Platform\HealthController;
 use App\Interface\Http\Controllers\Platform\NFSeController;
@@ -30,6 +33,18 @@ use Illuminate\Support\Facades\Route;
 Route::get('/health', [HealthController::class, 'liveness'])->name('platform.health');
 Route::get('/health/live', [HealthController::class, 'liveness'])->name('platform.health.liveness');
 Route::get('/health/ready', [HealthController::class, 'readiness'])->name('platform.health.readiness');
+
+// Public routes (no auth, rate limited)
+Route::prefix('public')->middleware('throttle:public-api')->group(function () {
+    Route::get('/plans', [PublicPlanController::class, 'index'])
+        ->name('platform.public.plans.index');
+
+    Route::post('/register', RegisterTenantController::class)
+        ->name('platform.public.register');
+
+    Route::get('/register/verify', VerifyRegistrationController::class)
+        ->name('platform.public.register.verify');
+});
 
 // Auth routes (public)
 Route::prefix('auth')->group(function () {

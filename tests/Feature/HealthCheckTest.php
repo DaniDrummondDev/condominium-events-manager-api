@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 test('platform liveness check returns healthy', function () {
-    $response = $this->getJson('/platform/health');
+    $response = $this->getJson('/api/v1/platform/health');
 
     $response->assertStatus(200)
         ->assertJsonStructure(['status', 'timestamp'])
@@ -11,14 +11,14 @@ test('platform liveness check returns healthy', function () {
 });
 
 test('platform liveness live endpoint returns healthy', function () {
-    $response = $this->getJson('/platform/health/live');
+    $response = $this->getJson('/api/v1/platform/health/live');
 
     $response->assertStatus(200)
         ->assertJson(['status' => 'healthy']);
 });
 
 test('platform readiness check returns healthy with component checks', function () {
-    $response = $this->getJson('/platform/health/ready');
+    $response = $this->getJson('/api/v1/platform/health/ready');
 
     $response->assertStatus(200)
         ->assertJsonStructure([
@@ -34,14 +34,14 @@ test('platform readiness check returns healthy with component checks', function 
 });
 
 test('tenant liveness check returns healthy', function () {
-    $response = $this->getJson('/tenant/health');
+    $response = $this->getJson('/api/v1/tenant/health');
 
     $response->assertStatus(200)
         ->assertJson(['status' => 'healthy']);
 });
 
 test('tenant readiness check returns healthy', function () {
-    $response = $this->getJson('/tenant/health/ready');
+    $response = $this->getJson('/api/v1/tenant/health/ready');
 
     $response->assertStatus(200)
         ->assertJsonStructure([

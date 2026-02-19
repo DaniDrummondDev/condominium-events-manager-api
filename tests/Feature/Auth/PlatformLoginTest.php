@@ -30,7 +30,7 @@ function createPlatformUserInDb(array $overrides = []): PlatformUserModel
 test('successful login returns access and refresh tokens', function () {
     createPlatformUserInDb();
 
-    $response = $this->postJson('/platform/auth/login', [
+    $response = $this->postJson('/api/v1/platform/auth/login', [
         'email' => 'admin@platform.test',
         'password' => 'SecurePass123',
     ]);
@@ -51,7 +51,7 @@ test('successful login returns access and refresh tokens', function () {
 test('login with invalid credentials returns 401', function () {
     createPlatformUserInDb();
 
-    $response = $this->postJson('/platform/auth/login', [
+    $response = $this->postJson('/api/v1/platform/auth/login', [
         'email' => 'admin@platform.test',
         'password' => 'WrongPassword',
     ]);
@@ -61,7 +61,7 @@ test('login with invalid credentials returns 401', function () {
 });
 
 test('login with non-existent email returns 401', function () {
-    $response = $this->postJson('/platform/auth/login', [
+    $response = $this->postJson('/api/v1/platform/auth/login', [
         'email' => 'nonexistent@platform.test',
         'password' => 'SecurePass123',
     ]);
@@ -73,7 +73,7 @@ test('login with non-existent email returns 401', function () {
 test('login with inactive account returns 401', function () {
     createPlatformUserInDb(['status' => 'inactive']);
 
-    $response = $this->postJson('/platform/auth/login', [
+    $response = $this->postJson('/api/v1/platform/auth/login', [
         'email' => 'admin@platform.test',
         'password' => 'SecurePass123',
     ]);
@@ -88,7 +88,7 @@ test('login with locked account returns 401', function () {
         'locked_until' => now()->addMinutes(30),
     ]);
 
-    $response = $this->postJson('/platform/auth/login', [
+    $response = $this->postJson('/api/v1/platform/auth/login', [
         'email' => 'admin@platform.test',
         'password' => 'SecurePass123',
     ]);
@@ -98,7 +98,7 @@ test('login with locked account returns 401', function () {
 });
 
 test('login validates required fields', function () {
-    $response = $this->postJson('/platform/auth/login', []);
+    $response = $this->postJson('/api/v1/platform/auth/login', []);
 
     $response->assertStatus(422)
         ->assertJsonValidationErrors(['email', 'password']);
@@ -111,7 +111,7 @@ test('login with MFA configured returns mfa_required', function () {
         'role' => 'platform_owner',
     ]);
 
-    $response = $this->postJson('/platform/auth/login', [
+    $response = $this->postJson('/api/v1/platform/auth/login', [
         'email' => 'admin@platform.test',
         'password' => 'SecurePass123',
     ]);
@@ -131,7 +131,7 @@ test('login with MFA configured returns mfa_required', function () {
 test('failed login increments failed_login_attempts', function () {
     createPlatformUserInDb();
 
-    $this->postJson('/platform/auth/login', [
+    $this->postJson('/api/v1/platform/auth/login', [
         'email' => 'admin@platform.test',
         'password' => 'WrongPassword',
     ]);

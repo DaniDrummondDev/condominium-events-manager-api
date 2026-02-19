@@ -70,6 +70,13 @@ class EloquentTenantRepository implements TenantRepositoryInterface
             ->all();
     }
 
+    public function saveConfig(Uuid $id, ?array $config): void
+    {
+        TenantModel::query()
+            ->where('id', $id->value())
+            ->update(['config' => $config !== null ? json_encode($config) : null]);
+    }
+
     private function toDomain(TenantModel $model): Tenant
     {
         return new Tenant(

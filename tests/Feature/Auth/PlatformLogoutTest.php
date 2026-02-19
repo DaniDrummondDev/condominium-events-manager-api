@@ -30,7 +30,7 @@ test('logout with valid token returns success', function () {
 
     $token = $this->generateAccessToken(userId: $userId);
 
-    $response = $this->postJson('/platform/auth/logout', [], [
+    $response = $this->postJson('/api/v1/platform/auth/logout', [], [
         'Authorization' => "Bearer {$token}",
     ]);
 
@@ -39,7 +39,7 @@ test('logout with valid token returns success', function () {
 });
 
 test('logout without token returns 401', function () {
-    $response = $this->postJson('/platform/auth/logout');
+    $response = $this->postJson('/api/v1/platform/auth/logout');
 
     $response->assertStatus(401)
         ->assertJsonPath('error', 'unauthenticated');

@@ -11,7 +11,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ResidentInvitationMail extends Mailable implements ShouldQueue
+class TenantVerificationMail extends Mailable implements ShouldQueue
 {
     use Queueable;
     use SerializesModels;
@@ -27,21 +27,23 @@ class ResidentInvitationMail extends Mailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        $condominiumName = $this->data['condominium_name'] ?? 'Condomínio';
-
         return new Envelope(
-            subject: "Convite para {$condominiumName}",
+            subject: 'Confirme seu cadastro - Condominium Events Manager',
         );
     }
 
     public function content(): Content
     {
+        $token = $this->data['verification_token'] ?? '';
+        $baseUrl = config('app.url', 'http://localhost:8000');
+        $verificationUrl = "{$baseUrl}/api/v1/platform/public/register/verify?token={$token}";
+
         return new Content(
-            view: 'emails.resident-invitation',
+            view: 'emails.tenant-verification',
             with: [
-                'name' => $this->data['name'] ?? '',
+                'adminName' => $this->data['admin_name'] ?? '',
                 'condominiumName' => $this->data['condominium_name'] ?? '',
-                'token' => $this->data['token'] ?? '',
+                'verificationUrl' => $verificationUrl,
                 'expiresAt' => $this->data['expires_at'] ?? '',
             ],
         );

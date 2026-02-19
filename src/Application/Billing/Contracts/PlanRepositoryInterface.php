@@ -18,5 +18,10 @@ interface PlanRepositoryInterface
      */
     public function findAll(): array;
 
+    /**
+     * @return array<Plan>
+     */
+    public function findAllActive(): array;
+
     public function save(Plan $plan): void;
 }

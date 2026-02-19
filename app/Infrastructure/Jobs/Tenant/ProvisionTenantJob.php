@@ -7,6 +7,8 @@ namespace App\Infrastructure\Jobs\Tenant;
 use App\Infrastructure\MultiTenancy\TenantDatabaseCreator;
 use App\Infrastructure\MultiTenancy\TenantManager;
 use App\Infrastructure\Persistence\Platform\Models\TenantModel;
+use App\Infrastructure\Persistence\Tenant\Models\TenantUserModel;
+use Domain\Shared\ValueObjects\Uuid;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -70,14 +72,34 @@ class ProvisionTenantJob implements ShouldQueue
             '--force' => true,
         ]);
 
-        // 4. Atualiza tenant para active
+        // 4. Cria usuario admin (sindico) se config contem dados
+        $config = $tenant->config;
+        if (is_array($config) && isset($config['admin_email'])) {
+            TenantUserModel::query()->create([
+                'id' => Uuid::generate()->value(),
+                'email' => $config['admin_email'],
+                'name' => $config['admin_name'],
+                'password_hash' => $config['admin_password_hash'],
+                'phone' => $config['admin_phone'] ?? null,
+                'role' => 'sindico',
+                'status' => 'active',
+            ]);
+
+            Log::info('ProvisionTenantJob: admin user created', [
+                'tenant_id' => $this->tenantId,
+                'email' => $config['admin_email'],
+            ]);
+        }
+
+        // 5. Atualiza tenant para active e limpa config (seguranca)
         $tenant->update([
             'database_name' => $databaseName,
             'status' => 'active',
             'provisioned_at' => now(),
+            'config' => null,
         ]);
 
-        // 5. Reseta conexao
+        // 6. Reseta conexao
         $tenantManager->resetConnection();
 
         Log::info('ProvisionTenantJob: provisioning completed', [
